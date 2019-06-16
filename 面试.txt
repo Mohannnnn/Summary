@@ -1,0 +1,1168 @@
+css:
+1.css盒模型
+答：盒模型分为w3c标准和IE标准的盒模型，在每个html页面开始头部有一个<!DOCTYPE html>这是申明使用w3c的标准盒模型，
+	w3c盒模型的宽高是content宽度,是不包含padding,margin,border，css3中定义了box-sizing属性,
+	使用content-box [不包含]则是w3c标准模型，宽/高 = content; 总宽度=margin+padding+content+border，
+	border-box [包含]则是IE模型，宽/高 = content + padding + border,总宽度=margin+content。
+
+2.瀑布流
+答：实现瀑布流布局共有三种方法。
+第一种：传统的多列布局
+    实现思想：首先固定屏幕中展示的列数，每一列中间的数据作为一组单独计算，插入数据时分别插入不同列中
+第二种：css3多列布局
+	思想：css3中一个新的属性：column，来实现等高的列的布局效果。该属性有column-width宽度，column-count数量等，并且能根据窗口自适应。
+第三种：js绝对定位实现
+	思想：1.获取元素容器的总宽度allWith, 每一个瀑布流元素的列宽度 itemWidth(如果大于allwidth,会有一个默认值替代)
+		  2.计算当前容器可以显示的列数 column Math.floor(allwidth/itemWidth) 向下取整
+          3.添加一个元素前，计算每一列当前的高度，寻找当前高度最小的列，然后根据列的序号k，确定item的left和top，left=k*itemWidth top=当前列的高度，然后当前列插入这个元素，当前列的高度加上这个元素的高度
+          4.所有元素插入完毕后，容器的高度会调整为最大列的高度
+          5.初始化就是先读取页面的所有元素，然后一个一个插入，加载更多就是在已有的元素基础上，插入新的元素计算
+
+3.chorme下修改输入框记住密码后为黄色背景
+答：input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+	    background-color: rgb(250, 255, 189); /* #FAFFBD; */
+	    background-image: none;
+	    color: rgb(0, 0, 0);
+  	}
+4.BFC(块级格式化上下文)
+答：BFC布局规则：
+	内部的Box会在垂直方向，一个接一个地放置。
+	Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生重叠
+	每个元素的margin box的左边， 与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此。
+	BFC的区域不会与float box重叠。
+	BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此。
+	计算BFC的高度时，浮动元素也参与计算
+
+	1.BFC会阻止外边距叠加 
+	一般情况，两个相邻的块级框，它们之间的垂直方向的外边距会发生叠加。 如果这两个相邻的块框不属于同一个BFC就不会叠加！ 
+	2.BFC不会重叠浮动元素 
+	一个BFC的边框不能和它里面的元素的margin重叠。 
+	这意味着浏览器将会给BFC创建隐式的外边距来阻止它和浮动元素的外边距的叠加。 
+	当给一个挨着浮动的BFC添加负得外边距不会起作用！ 
+	BFC通常可以包含浮动
+	
+	哪些元素会生成BFC?
+	根元素
+	float属性不为none
+	position为absolute或fixed
+	display为inline-block, table-cell, table-caption, flex, inline-flex
+	overflow不为visible( hidden,scroll,auto, )
+
+js:
+js引用类型的点操作“.”是先在自己上查找是否有，没有则添加在自身上，而push方法会在原型链上查找。
+
+
+1.函数节流和函数防抖
+答：函数节流常用于频繁触发的事件，但我们只需要每隔一段时间执行，实例有图片惰加载。函数防抖是在短时间内事件反复执行，然而我们只是在这段时间结束后做一次操作。
+第一种：防抖
+var debounce = function (delay , callback) {
+	var timer = null;
+	return function () {
+		var context = this;
+		clearTimeout(timer);
+		timer = setTimeout(function(){
+			callback.call(context);
+		} , delay);
+	}
+}
+
+第二种：节流
+var throttle = function (callback , delay ,time) {
+	var startTime = new Date();
+	var timer = null;
+	return function() {
+		var context = this;
+		var currTime = new Date();
+
+		clearTimeout(timer);
+		if(currTime.getTime() - startTime.getTime() > time) {
+			callback.call(context);
+			startTime = currTime;
+		} else {
+			timer = setTimeout(callback , delay);
+		}
+	}
+}
+
+2.原型（function.__proto__ = Function.prototype,function a(){}  a.prototype.__proto__ = object.prototype）
+	判断一个对象是否指向了该构造函数的原型对象，可以使用 isPrototypeOf()方法来测试。
+	alert(Box.prototype.isPrototypeOf(box)); //只要实例化对象，即都会指向
+	如何判断属性是在构造函数的实例里，还是在原型里？可以使用 hasOwnProperty()函数来验证：
+	alert(box.hasOwnProperty('name'));//实例里有返回 true，否则返回  false,
+
+	判断类型
+	1.typeof
+		对于基本类型undefined,number,string,boolean,null，除 null 以外，均可以返回正确的结果。
+		对于引用类型array,function,regex,date,，除 function 以外，一律返回 object 类型。
+		对于 null ，返回 object 类型。
+		对于 function 返回  function 类型。
+	2.A instanceof B,用来判断 A 是否为 B 的实例,检测的是原型(只能用来判断两个对象是否属于实例关系，而不能判断一个对象实例具体属于哪种类型)(只对引用类型生效)
+	3.A.constructor == B ,根据A对象的constructor属性，常用于判断未知对象的类型，A的类型是否为B
+	4.Object.prototype.toString.call('')
+
+3.闭包：一个拥有许多变量和绑定了这些变量的环境的表达式
+答：一般函数执行完毕后，函数内部的活动对像都会被销毁，内存中仅仅保存的是全局作用域，但闭包却是在活动结束后，对象仍会活跃在内存中，它不会被销毁，通过这些对象，我们就又可以访问或改变局部变量。
+块级作用域(function(){})();
+
+4.内存泄漏
+答：js导致内存泄漏的一个主要原因为不需要的引用(保存在代码中某处的变量，它不再被使用，并指向可以被释放的一块内存)
+javascript四种常见的内存泄漏：
+	1.在未申明的变量在全局对象内创建一个新的变量。有未用var 申明变量，或者错误地使用this对象，还有一些临时存储和处理大量信息的变量，如果非要用，那么需要将其置空或者完成后重新分配它。建议使用‘use strict’
+	例如：function a() {
+			name = 'wuhan';
+	  	  }
+	2.被遗忘的定时器和回调函数
+    例如：var someResource = getData();
+		setInterval(function() {
+		  var node = document.getElementById('Node');
+		  if(node) {
+		    // Do stuff with node and someResource.
+		    node.innerHTML = JSON.stringify(someResource);
+		  }
+		}, 1000);
+        由节点表示的对象可以在将来被移除，使得区间处理器内部的整个块不需要了。但是，处理程序（因为时间间隔仍处于活动状态）无法回收（需要停止时间间隔才能发生）。如果无法回收间隔处理程序，则也无法回收其依赖项。这意味着someResource，它可能存储大小的数据，也不能被回收
+
+        良好做法：
+        var element = document.getElementById('button');
+		function onClick(event) {
+		  element.innerHtml = 'text';
+		}
+		element.addEventListener('click', onClick);
+		// Do stuff
+		element.removeEventListener('click', onClick);//删除事件
+		element.parentNode.removeChild(element);//移除孩子节点
+
+    3.脱离DOM的引用
+    有时，将DOM节点存储在数据结构中可能很有用。 假设要快速更新表中多行的内容。在字典或数组中存储对每个DOM行的引用可能是有意义的。当发生这种情况时，会保留对同一个DOM元素的两个引用：一个在DOM树中，另一个在字典中。如果在将来的某个时候，您决定删除这些行，则需要使这两个引用不可访问
+    例如：
+    var elements = {
+	  button: document.getElementById('button'),
+	  image: document.getElementById('image'),
+	  text: document.getElementById('text')
+	};
+	function doStuff() {
+	  image.src = 'http://some.url/image';
+	  button.click();
+	  console.log(text.innerHTML);
+	  // Much more logic
+	}
+	function removeButton() {
+	  document.body.removeChild(document.getElementById('button'));
+	  //在删除掉DOM元素时，因为保留了对一个DOM元素的两种引用方法，所以即使删除掉其中一种，它也仍然存在内存中，将会导致内存泄漏，最好的办法是将两种方法都使不可访问。
+	}
+
+	4.闭包
+	var theThing = null;
+	var replaceThing = function () {
+	  	var originalThing = theThing;
+	  	var unused = function () {
+    		if (originalThing) console.log("hi");
+	  	};
+	  	
+	    theThing = {
+	      	longStr: new Array(1000000).join('*'),
+	      	someMethod: function () {
+	        	console.log(someMessage);
+	      	}
+	    };
+	    //这句能够消除内存泄露问题：originalThing = null;
+	};
+	setInterval(replaceThing, 1000);
+
+
+
+5.模板引擎
+答：模板引擎都是讲业务和数据分层，实现可复用组件。常用的有：jade,ejs,swig等
+
+7.this指针
+答：***this永远是被调用的时候，才能明确指向哪个对象。
+	***this永远指向的是最后调用它的对象，也就是看它执行的时候是谁调用的。（判断this很重要的方法）
+	如果返回值是一个对象，那么this指向的就是那个返回的对象，如果返回值不是一个对象那么this还是指向函数的实例。
+	call和apply被调用时，不仅改变函数中this指向，而且执行该函数，但bind仅仅是改变函数中this的指向，并不执行。
+    call为参数列表，apply为数组
+
+8.跨域
+答：documengt.domain跨域：修改本页面窗口下的iframe的document.domain为父级窗口的域名，就可以在父级页面中拿到iframe中的数据。
+	location.hash跨域：改变URL的hash部分来进行双向通信。
+	window.name跨域：改变当前页面的window.name 然后window.href = '...'跳转后在获取不会改变	
+	HTML5的postMessage跨域：otherWindow.postMessage(message, targetOrigin); otherWindow是指目标窗口，message为信息，targetOrigin指发送消息窗口的域名
+	//1.html
+	<iframe src="http://localhost:8002/2.html" style="display: none;" id="ifr"></iframe>
+    <script>
+		var iframe = document.getElementById('ifr');
+		iframe.onload = function() {
+			var data = {a: '1'};
+			iframe.contentWindow.postMessage(JSON.stringify(data), 'http://localhost:8002');
+		};
+		// 接受传输的数据
+		window.addEventListener('message', function(e) {
+			console.log(e.data); // 2
+		}, false);
+	</script>
+	//2.html
+	<script>
+		window.addEventListener('message', function(e) {
+			console.log(e.data); //{"a":"1"}
+			window.parent.postMessage('2', 'http://localhost:8000');
+		})
+    </script>
+	服务器反向代理。
+	jsonp跨域：只有get请求，	
+		var script = document.createElement('script');
+		script.src = 'www.baidu.com?callback=test';
+		document.body.insertBefore(script , document.body.lastChild);
+		function test(response) { console.log(response);}
+	cors跨域：
+	    function createCORSRequest (method,url) {
+	        var xhr = new XMLHttpRequest();
+
+	        if ("withCredentials" in xhr) {
+	            xhr.open(method,url,true);
+	        } else if (typeof XDomainRequest != "undefined") {
+	            xhr = new XDomainRequest();
+	            xhr.open(method,url);
+	        } else {
+	            xhr = null;
+	        }
+	        return xhr;
+   		}
+
+	    document.querySelector('#btn').onclick = function () {
+
+	        var name = document.querySelector('#name').value;
+	        var id = document.querySelector('#id').value;
+
+	        var request = createCORSRequest("get","http://localhost:3002/deal?name=" + name + '&id=' + id);
+
+	        if(request) {
+	            request.onload = function (){
+	                //对request.responseText进行处理
+	                console.log(request.responseText);
+	            };
+	            request.onerror = function () {
+	                alert('Woops, there was an error making the request.');
+	            };
+	            request.send(null);
+	        }
+	    }
+	    服务器需要设置一些响应头部：
+	    Access-Control-Allow-Origin: *    //跨域请求的地址
+		Access-Control-Allow-Methods: GET, POST, PUT  //允许的方法
+		Access-Control-Allow-Headers: X-Custom-Header  //支持头部信息
+		Access-Control-Allow-Credentials: true   //
+		Access-Control-Max-Age: 1728000   //预检查有效期
+
+	http请求不携带cookie:
+	设置头部：crossDomain: true, xhrFields: {withCredentials: true}
+
+9.模块加载器
+答：说到模块加载器那就必须说明一下AMD、CMD和Commonjs规范了。
+	AMD:依赖前置，提前执行，典型requirejs
+	CMD:依赖后置，延迟执行，典型seajs
+    熟悉webpack打包工具
+
+10.call和apply区别：fn.apply(thisobj,arguments).相同：都是将fn 函数上下文对象改变为由fn函数中this对象指向的thisObj，不同，函数参数，call接受为参数列表，apply为数组
+
+11.setInterval和setTimeout区别：js是单线程执行的单线程，就是说在程序执行时，所走的程序路径按照连续顺序排下来，前面的必须处理好，后面的才会执行。所以其实setTimeout和setInterval所谓的“异步调用”事实上是通过将代码段插入到代码的执行队列中实现的。 而如何计算插入的时间点呢？自然是要用到我们所说的timer，也就是计时器。当执行setTimeout和setInterval的时候，timer会根据你设定的时间“准确”地找到代码的插入点。当队列“正常”地执行到插入点时，就触发callback，也就是我们设定的回调函数
+
+12.书写一个ajax
+答：var xhr = new XMLHttpRequest() || new ActiveXObject("Microsoft.XMLHTTP");
+	xhr.open(type,url,ture);
+	xhr.setRequestHeader('Content-Type' , 'application/x-www-form-urlencoded;charset=UTF-8');
+	xhr.send();
+	xhr.onreadystatechange = function (e) {
+		if(xhr.readyState == 4) {
+			if(xhr.status == 200) { // 304是不用判断的，因为每次请求会加入一个随机数，不会缓存。
+				var data = xhr.responseText;
+			}
+		}
+	}
+13.前端性能优化方案。
+答：content方面：
+		1.减少Http请求：合并文件，css精灵，雪碧图。
+		2.减少DNS查询：DNS缓存。
+		3.减少DOM数量。
+	server方面:
+		1.使用CDN：内容分发技术。
+			用户向浏览器输入www.web.com这个域名，浏览器第一次发现本地没有dns缓存，则向网站的DNS服务器请求；
+			网站的DNS域名解析器设置了CNAME，指向了www.web.51cdn.com,请求指向了CDN网络中的智能DNS负载均衡系统；
+			智能DNS负载均衡系统解析域名，把对用户响应速度最快的缓存服务器IP返回给用户；
+			用户向该IP节点（CDN服务器）发出请求；
+			由于是第一次访问，CDN服务器会向原web站点请求，并缓存内容；
+			请求结果发给用户。
+		2.配置ETag,ETag = Filetimestamp + ':'+ ChangeNumber,对于使用服务器集群来说，ETag会带来性能上的损耗,
+		  移除ChangeNumber或者移除Etag能避免已经位于浏览器缓存中而进行的不必要请求。
+		3.对组件进行Gzip压缩
+	cookie方面：
+		1.减小cookie大小。
+	css方面：
+		1.将样式表放在最上面。
+		2.不使用css表达式。
+		3.用link代替@import。
+	js方面：
+		1.将脚本放在</body>/在下面。
+		2.从外部引用js和css进来（缓存）。
+		3.压缩js和css文件。
+		4.删除不需要脚本。
+		5.减少DOM访问。
+	图片方面：
+		1.优化图片。
+		2.优化css精灵。
+		3.不要再HTMl中拉伸图片。
+
+14.轮询技术
+答：1.ajax短轮询技术，原理：使用定时器每隔一段时间发送请求。
+    2.comet长轮询技术，原理：浏览器率先发送一个请求，然后服务器接受这个请求后并不直接返回数据，而是根据数据更新或者请求超时时才会返回数据，然后客户端接收到数据后，又会建立一个连接请求。
+    3.comet流技术，原理：浏览器向服务器发送一个请求，服务器保持连接打开，周期性的向浏览器发送数据。一般来说，都是把新的数据加到之前输出缓存的末尾再重新都发一遍。通过监听readystatechange事件，当readyState为3时就代表数据都接收到了。随着不断从服务器端接收到数据，readyState会周期性的变为3。这时就可以读取responseText中的数据，并与上次接收到的做比对，获取新的数据。
+    4.webSocket,原理：webSocket是HTML5的一个新的API客户端先建立一个连接,然后监听事件
+    	客户端：    
+    	 ws=new WebSocket('ws://localhost:5000');
+         ws.onopen=function(){
+             oUl.innerHTML+="<li>客户端已连接</li>";
+         }
+        ws.onmessage=function(evt){
+            oUl.innerHTML+="<li>"+evt.data+"</li>";
+        }
+        ws.onclose=function(){
+            oUl.innerHTML+="<li>客户端已断开连接</li>";
+        };
+        ws.onerror=function(evt){
+            oUl.innerHTML+="<li>"+evt.data+"</li>";
+        };
+        ws.send(oInput.value);//发送请求
+        服务器端：原理：先建立一个http端口例如：80监听用户请求，然后再创建一个webSocket服务器端等待用户连接，在收到请求之后将信息广播到所有客户端。
+        var app=require('http').createServer(handler);
+		var ws=require('nodejs-websocket');
+		var fs=require('fs');
+		app.listen(80);//监听用户请求
+		function handler(req,res){
+		    fs.readFile(__dirname+'/client.html',function(err,data){
+		        if(err){
+		            res.writeHead(500);
+		            return res.end('error ');
+		        }
+		        res.writeHead(200);
+		        res.end(data);
+		    });
+		}
+		//在5000端口，监听webSocket请求
+		var server=ws.createServer(function(conn){
+		    console.log('new conneciton');
+		    conn.on("text",function(str){
+		        broadcast(server,str);
+		    });
+		    conn.on("close",function(code,reason){
+		        console.log('connection closed');
+		    })
+		}).listen(5000);
+		 
+		function broadcast(server, msg) {
+		    server.connections.forEach(function (conn) {
+		        conn.sendText(msg);
+		    })
+		}
+
+14.["1", "2", "3"].map(parseInt)怎么输出
+答：[1,NaN,NaN]，因为map传入参数为（value,index,array）,而parseInt只接受两个参数，第二个参数是传入的进制数，2的时候，进制数为1，2>1所以为NaN,3的时候，进制数为2,3>2所以为NaN
+
+15.对new操作符认识
+答：  1、创建一个空对象，并且 this 变量引用该对象，同时还继承了该函数的原型。
+	  2、属性和方法被加入到 this 引用的对象中。
+	  3、新创建的对象由 this 所引用，并且最后隐式的返回 this 。
+		var obj = new Base();
+		相当于运行以下代码
+		var obj = {};
+		obj.__proto__ = Base.prototype; //Object.getPrototypeOf(obj) = Base.prototype;
+		Base.call(obj);
+		//函数的对象上下文从初始的上下文改变为由 obj 新对象,这里也就是将上下文对象替换为obj。
+		//将Base的this绑定到obj上，这样就能够运用Base的是属性和方法了。
+		对于ES5中添加了 Object.create()，
+		if(typeof Object.create !== "function"){
+		    Object.create = function(o){
+		        function F(){};
+		        F.prototype = o;
+		        return new F();
+		    }
+		}
+16.Ajax解决缓存问题
+答：1、在ajax发送请求前加上 anyAjaxObj.setRequestHeader("If-Modified-Since","0")。
+  2、在ajax发送请求前加上 anyAjaxObj.setRequestHeader("Cache-Control","no-cache")。
+  3、在URL后面加上一个随机数： "fresh=" + Math.random();
+  4、在URL后面加上时间搓："nowtime=" + new Date().getTime();。
+  5、如果是使用jQuery，直接这样就可以了 $.ajaxSetup({cache:false})。这样页面的所有ajax都会执行这条语句就是不需要保存缓存记录。
+
+17.requirejs源码解析
+答: 
+    1.关于requirejs加载问题：每个模块所依赖的其他模块都会比本模块先加载。
+    2.requirejs的上下文对象context。在requirejs源码里面有一句 req({})  ,这是初始化上下文context对象，调用的是req方法。
+    3.在requirejs里面有特定代码是用来查找data-main的，然后往全局对象cfg里面添加base路径和main
+    4.getModule方法返回的是当前模块所依赖的模块和当前模块运行结果
+    5.在newContext方法里面定义了大量的加载模块、校检、检查等工作。可以看到这个方法，主要是定义了一个context对象和Module方法,然后执行这个方法后会自动调用对象的makeRequire()方法，这个makeRequire实际上又是调用的是内部定义的localRequire(),loaclRequire()又是处理加载模块，依赖检查的核心。
+    6.所有的加载都会交由req.nextTick 执行。
+
+    简单流程：
+     1.我们在使用requireJS时，都会把所有的js交给requireJS来管理，也就是我们的页面上只引入一个require.js，把data-main指向我们的main.js。
+
+	 2.通过我们在main.js里面定义的require方法或者define方法，requireJS会把这些依赖和回调方法都用一个数据结构保存起来。
+
+	 3.当页面加载时，requireJS会根据这些依赖预先把需要的js通过document.createElement的方法引入到dom中，这样，被引入dom中的script便会运行。
+
+	 4.由于我们依赖的js也是要按照requireJS的规范来写的，所以他们也会有define或者require方法，同样类似第二步这样循环向上查找依赖，同样会把他们村起来。
+
+	 5.当我们的js里需要用到依赖所返回的结果时(通常是一个key value类型的object),requireJS便会把之前那个保存回调方法的数据结构里面的方法拿出来并且运行，然后把结果给需要依赖的方法。
+
+	 另外：
+		1.原来RequireJS加载模块的时候，是检查data-main属性，然后去加载目标js。
+		2 加载到目标模块后，会按照它的依赖关系，进行加载，并且每个模块仅会加载一次。
+		3 加载模块的时候，会绑定一个load事件，当加载完会触发事件，执行该js
+		4 脚本实际上是通过创建了页面的script元素，然后添加到head里面。	
+
+18.当我们输入一个url发生了什么
+答：  1、浏览器会开启一个线程来处理这个请求，对 URL 分析判断如果是 http 协议就按照 Web 方式来处理;
+      2、调用浏览器内核中的对应方法，比如 WebView 中的 loadUrl 方法;
+      3、通过DNS解析获取网址的IP地址，建立tcp连接,设置 UA 等信息发出HTTP的第二个GET请求;
+      4、进行HTTP协议会话，客户端发送报头(请求报头); 
+      5、进入到web服务器上的 Web Server，如 Apache、Tomcat、Node.JS 等服务器;
+      6、进入部署好的后端应用，如 PHP、Java、JavaScript、Python 等，找到对应的请求处理;
+      7、处理结束回馈报头，此处如果浏览器访问过，缓存上有对应资源，会与服务器最后修改时间对比，一致则返回304;
+      8、浏览器开始下载html文档(响应报头，状态码200)，同时使用缓存;
+      9、文档树建立，根据标记请求所需指定MIME类型的文件（比如css、js）,同时设置了cookie;
+      10、页面开始渲染DOM，JS根据DOM API操作DOM,执行事件绑定等，页面显示完成。
+
+19.缓存
+答：缓存分为强缓存和协商缓存，在浏览器加载资源时候会先根据这个资源的一些http header判断是否命中了强缓存，
+	强缓存如果存在，则会直接从浏览器自己的缓存中读取，不会发请求到服务器。比如某个css文件。
+	当强缓存没有命中时则会发送一个请求到服务器，服务器会根据资源的另一些http header查看是否命中了协商缓存，
+	如果是，则返回304，不会返回资源，会告诉浏览器可以在自己缓存中加载资源。相反，如果没有则会从服务器加载资源。
+
+	强缓存原理：利用Expires[绝对时间]或者Cache-Control[相对时间]这两个reponse header实现
+	强缓存的应用：静态资源的缓存，一般都互为静态资源设置超长的Expires和Cache-Control。
+
+	协商缓存原理：利用【Last-Modified，If-Modified-Since】和【ETag、If-None-Match】这两对Header来管理的。
+	第一对：在第一次访问资源时，response header会返回Last-Modified值为在服务器上最后修改时间。再次访问该资源时request header会
+			加上If-Modified-Since，值为Last-Modified值。浏览器传过来If-Modified-Since和资源在服务器上的最后修改时间判断资源是否有变化，
+			如果没有变化则返回304 Not Modified，但是不会返回资源内容；如果有变化，就正常返回资源内容。当服务器返回304 Not Modified的响应时，response header中不会再添加Last-Modified的header，
+	
+	200 OK (from cache) 指的是浏览器都没和服务器确认，直接用了浏览器缓存。
+	304 Not Modified 比 200 OK (from cache) 慢，指的是浏览器还向服务器确认了下 "If-Not-Modified"，才用的缓存。
+	200(From cache)是直接点击链接访问，输入网址按回车访问触发(这两种情况都不会有Etag),可以在Server端配置移除Etag能触发。
+    304(Not Modified)是刷新页面时触发，或是设置了长缓存、或当Etag没有移除时触发。
+
+	当 	a、某些服务器不能精确得到资源的最后修改时间，这样就无法通过最后修改时间判断资源是否更新 
+		b、如果资源修改非常频繁，在秒以下的时间内进行修改，而Last-modified只能精确到秒 
+		c、一些资源的最后修改时间改变了，但是内容没改变，使用ETag就认为资源还是没有修改的。
+	这时就需要第二对了;
+
+	第二对：其实和第一对是一样的请求步骤，只是第一对是使用的是记录时间，而第二个设置一个唯一字符串，当访问服务器时response header 会返回
+	        Etag值为唯一的字符串，然后再次访问资源时request header会返回If-None-Match值为Etag值，然后服务器会新生成一个Etag值 然后对比字符串，
+	        相同则没有改变，返回304，有变化就返回新资源，最后由于重新生成过Etag还是会把Etag返回。
+
+20.单点登录
+答：不同域名下实现：重定向进行验证。首先用户在A 站点登陆后，前往B站点，B 站点首先会检查你是否登陆，如果没有登陆，也就是cookie里面没有
+	能够证明身份的东西，它会重定向到A 站点下，然后检查你是否登陆，如果你没有登陆就会让你先登陆A站点，然后会生成一个ticket存在A站，然后携带一个加密的token值
+	返回B站点，B站点验证成功后就会生成一个ticket的cookie存在B站，这时B站点就已经登陆了。
+    
+    同一域名下实现：共享session
+21.浅拷贝和深拷贝
+答：浅拷贝；只是值的拷贝，而且所有的引用对象都是指向原来的地址。
+    实现：function shallowCopy(p) {
+             var c = {};
+             for (var i in p) {
+             	c[i] = p[i];
+             }
+             return c;
+    	  }
+    深拷贝：真正意义上实现对数组或者对像的拷贝。
+    实现： function deepCopy (p) {
+    			var c = p.constructor == Array ? [] : {}; //c = p instanceof Array ? [] : {};
+    			for ( var i  in p) {
+    				if (typeof(p[i]) === 'object') {
+    					c[i] = deepCopy(p[i]);
+    				}else {
+    					c[i] = p[i];
+    				}
+    			}
+    			return c;
+    	   }
+	深拷贝：JSON.parse(JSON.stringify(oldObj));
+	缺点：1.他无法实现对函数 、RegExp等特殊对象的克隆
+		 2.会抛弃对象的constructor,所有的构造函数会指向Object
+		 3.对象有循环引用,会报错
+
+ 22.排序：
+ 答：1.冒泡排序//第二个for循环必须从j=0开始比
+     function bubbleSort (arr) {
+     	var len = arr.length,
+     		i ,
+     		j ,
+     		stop;
+     	for (i = 0 ; i < len - 1 ; i ++ ) {
+     		var exchange = 0;
+     		for (j = 0 , stop = len -1 -i ; j < stop ;  j ++ ) {
+     			if (arr[j] > arr [j+1]) {
+	     			var temp ;
+	     			temp = arr[j];
+	     			arr[j] = arr[j+1];
+	     			arr[j+1] = temp;
+	     			exchange = 1;
+     			}
+     		}
+     		if (!exchange) return arr;
+     	}
+     	return arr;
+     }
+
+     2.选择排序//第二个for循环是在j =i +1开始比
+     function selectSort(arr) {
+     	var len = arr.length,
+     	    i,
+     	    j,
+     	    min;
+     	for ( i = 0 ; i < len ; i ++) {
+     		min = i;
+     		for (j = i + 1 , j < len;  j++) {
+     			if (arr[min] > arr [j] ) {
+     				min = j;
+     			}
+     		}
+ 			if (min != i) {
+ 				var temp = arr[i];
+ 				arr[i] = arr[min];
+ 				arr[min] = temp;
+ 			} 
+     	}
+
+     	return arr ;
+     }
+
+     3.插入排序
+     function insertSort(arr) {
+     	var len = arr.length,
+     	    i,
+     	    j,
+     	    value;
+     	for ( i = 0 ; i < len ; i++) {
+     		value = arr[i];
+     		for ( j = i - 1 ; j >-1 && value < arr[j] ; j --) {
+     			arr[j+1] = arr[j];
+     		}
+
+     		arr[j+1] = value;
+     	}
+
+     	return arr;
+     }
+
+     4.快速排序
+     function quickSort(arr) {
+     	var arr = arr;
+     	quickFn = function (arr) {
+     		if(arr.length <= 1) return arr;
+     		
+     		var pivotIndex = Math.floor(arr.length/2),
+     		    pivot = arr.splice(pivotIndex , 1)[0],
+     		    left = [],
+     		    right = [],
+     		    i,
+     		    len = arr.length;
+     		for(i = 0 ; i < len ; i ++ ) {
+     			if (arr[i] < pivot) {
+     				left.push(arr[i]);
+     			} else {
+     				right.push(arr[i]);
+     			}
+     		}
+
+     		return  quickFn(left).concat([pivot] , quickFn(right));
+     	}
+        return quickFn(arr); 
+     }
+23.重排和重绘(重排必然导致重绘，反之，亦不然)
+   重排条件：1.增删可见DOM元素
+   			 2.元素位置、尺寸(边距、填充、边框、宽度和高度)改变
+   			 3.元素内容被替换
+   			 4.页面渲染初始化
+   			 5.浏览器窗口大小改变(resize事件)
+   			 6.改变字体大小
+   			 7.CSS虚类被触发如 :hover
+   			 8.动态设置一个style样式时（比如element.style.width="10px"）
+   			 9.当获取一个必须经过计算的尺寸值时，比如访问offsetWidth、clientHeight或者其他需要经过计算的CSS值。
+   	重绘条件：1.改变颜色，背景颜色
+24.property(属性)和attribute(特性)区别
+	1.property是DOM中的属性，是JavaScript里的对象；
+	  attribute是HTML标签上的特性，它的值只能够是字符串；
+	2.property能够从attribute中得到同步；
+	  attribute不会同步property上的值；
+	  attribute和property之间的数据绑定是单向的，attribute->property；
+	  更改property和attribute上的任意值，都会将更新反映到HTML页面中；
+
+浏览器：
+1.IE兼容
+答：1.条件注释
+    2.css hack
+   		.box {
+		  color: red;   /* 所有浏览器都生效 */
+		  _color: blue; /* 只有 IE 6 生效 */
+		  *color: pink; /* 只有 IE 6 IE 7 生效 */
+		  color: yellow\9; /* IE 6~8 都生效 */
+		}
+		//设置css文件
+		< !--[if IE 7]>
+		<link rel="stylesheet" href="ie7.css" type="text/css" />
+		<![endif]-->
+		//设置样式
+		< !--[if IE 7]>
+		<html class="ie7">
+		<![endif]-->
+2.XSS攻击和CSRF
+	xss分类：
+ 	1.反射型XSS：需要用户去点击激活的XSS攻击，如:恶意链接
+ 	2.存储型XSS：具有攻击的XSS代码，存储在服务器，当用户请求的时候，就会触发。
+ 	通过javascript实现xss的有：Cookie劫持，构造请求，XSS钓鱼，CSS History Hack
+
+ 	防御手段：
+ 	HttpOnly：服务器端在设置安全级别高的Cookie时，带上HttpOnly的属性，就能防止JavaScript通过document.cookie方式获取cookie。
+ 	控制过滤数据：
+ 	HtmlEncode：对下列字符实现编码
+	& ——》 &
+
+	< ——》 <
+
+	> ——》 >
+
+	" ——》 "
+
+	' ——》 ' （IE不支持'）
+
+	/ ——》 /
+
+	JavaScriptEncode:对下列字符加上反斜杠
+
+	" ——》 \"
+
+	' ——》 \'
+
+	\ ——》 \
+
+	\n ——》 \n
+
+	\r ——》 \r (Windows下的换行符)
+
+	URLEncode:用以下JS原生方法进行URI编码和解码：
+
+	encodeURI
+	decodeURI
+	decodeURIComponent
+	encodeURIComponent
+
+	CSRF：当用户访问 恶意A站 时，恶意A站 私自访问 用户已经登陆的B站 的操作链接，模拟用户操作。
+	防御手段：
+	1.验证码
+	2.服务器检查请求头部中的Referer字段，判断是从哪个站点链接发送过来的。
+	3.token,在浏览器向服务器传参的时候，带上token随机值，这个值在浏览器和服务器同时拥有，在浏览器中存在cookie中，
+	 （前提，网站没有XSS漏洞，攻击者不能通过脚本获取用户的Cookie）
+3.内核
+  浏览器内核分为渲染引擎和js引擎
+  IE(Trident),win10发布后微软将其内置浏览器改名为Edge,新内核名为EdgeHTML
+  Firfox(Gecko),在当时IE内核没按照w3c标准后，由当时停止更新Netscape的员工重新开发出来的。
+  Safari(webkit),
+  Chrome(Blink/chromium),chromium是根据webkit开发出来的。
+  OPera(Presto)以前是Presto内核，现在是Blink内核。
+
+协议：
+1.http协议
+[
+  100  Continue    继续，一般在发送post请求时，已发送了http header之后服务端将返回此信息，表示确认，之后发送具体参数信息
+  200  OK         正常返回信息
+  201  Created      请求成功并且服务器创建了新的资源
+  202  Accepted     服务器已接受请求，但尚未处理
+  301  Moved Permanently  请求的网页已永久移动到新位置。
+  302 Found          临时性重定向。
+  303 See Other      临时性重定向，且总是使用 GET 请求新的 URI。
+  304  Not Modified 自从上次请求后，请求的网页未修改过。
+
+  400 Bad Request  服务器无法理解请求的格式，客户端不应当尝试再次使用相同的内容发起请求。
+  401 Unauthorized 请求未授权。
+  403 Forbidden      禁止访问。
+  404 Not Found      找不到如何与 URI 相匹配的资源。
+
+  500 Internal Server Error  最常见的服务器端错误。
+  503 Service Unavailable 服务器端暂时无法处理请求（可能是过载或维护）。
+]
+
+框架：React
+	1.使用React.createClass时要创建为大写
+    2.组件类只能包含一个顶层标签，否则也会报错,即return的时候返回一个div(最外层)
+    3.当我们需要向组件类传递参数时，使用this.props对象
+    4.在添加属性时， class 属性需要写成 className ，for 属性需要写成 htmlFor ，这是因为 class 和 for 是 JavaScript 的保留字。
+    5.在组件中 getInitialState 用于定义初始状态，也就是一个对象，这个对象可以通过 this.state 属性读取。当用户点击组件，导致状态变化，
+    this.setState 方法就修改状态值，每次修改以后，自动调用 this.render 方法，再次渲染组件
+    6.state 和 props 主要的区别在于 props 是不可变的，而 state 可以根据与用户交互来改变。这就是为什么有些容器组件需要定义 state 来更新和修改数据。
+    而子组件只能通过 state 来传递数据。
+    7.可以通过 getDefaultProps() 方法在组件中设置 props 默认值
+    8.组件API
+        设置状态：setState
+            setState(object nextState[, function callback])
+        替换状态：replaceState
+            replaceState(object nextState[, function callback])
+        设置属性setProps
+            setProps(object nextProps[, function callback])
+        替换属性replaceProps
+            replaceProps(object nextProps[, function callback])
+        强制更新：forceUpdate
+            forceUpdate([function callback])
+        获取DOM节点：getDOMNode
+            DOMElement getDOMNode(),返回值：DOM元素DOMElement
+        从组件获取真实 DOM 的节点，
+            React.findDOMNode 方法。
+        判断组件挂载状态：isMounted
+            bool isMounted() 返回值：true或false，表示组件是否已挂载到DOM中
+    9.组件的生命周期
+    组件的生命周期可分成三个状态：
+        Mounting：已插入真实 DOM
+	        constructor()
+			componentWillMount()
+			render()
+			componentDidMount()
+        Updating：正在被重新渲染
+        	componentWillReceiveProps()
+			shouldComponentUpdate()
+			componentWillUpdate()
+			render()
+			componentDidUpdate()
+        Unmounting：已移出真实 DOM
+        	componentWillUnmount()
+    生命周期的方法有：
+        componentWillMount 在渲染前调用,在客户端也在服务端。
+        componentDidMount : 在第一次渲染后调用，只在客户端。之后组件已经生成了对应的DOM结构，可以通过this.getDOMNode()来进行访问。 如果你想和其他JavaScript框架一起使用，可以在这个方法中调用setTimeout, setInterval或者发送AJAX请求等操作(防止异部操作阻塞UI)。
+        componentWillReceiveProps 在组件接收到一个新的prop时被调用。这个方法在初始化render时不会被调用。
+        shouldComponentUpdate 返回一个布尔值。在组件接收到新的props或者state时被调用。在初始化时或者使用forceUpdate时不被调用。
+        可以在你确认不需要更新组件时使用。
+        componentWillUpdate在组件接收到新的props或者state但还没有render时被调用。在初始化时不会被调用。
+        componentDidUpdate 在组件完成更新后立即调用。在初始化时不会被调用。
+        componentWillUnmount在组件从 DOM 中移除的时候立刻被调用。
+    10.React中ajax
+        React 组件的数据可以通过 componentDidMount 方法中的 Ajax 来获取，当从服务端获取数据库可以将数据存储在 state 中，再用 this.setState
+    方法重新渲染 UI。当使用异步加载数据时，在组件卸载前使用 componentWillUnmount 来取消未完成的请求。
+    11.this.props.children
+        表示的是该组件所有的“子”节点,this.props.children 的值有三种可能：如果当前组件没有子节点，它就是undefined;如果有一个子节点，数据类型是
+    object ；如果有多个子节点，数据类型就是 array 。所以，处理 this.props.children 的时候要小心。React 提供一个工具方法 React.Children 来处理
+    this.props.children 。我们可以用 React.Children.map 来遍历子节点，而不用担心this.props.children 的数据类型是 undefined 还是 object
+    12. ref属性，用于获取真实的DOM节点。
+
+Vue:
+	1.Observer 数据监听器，能够对数据对象的所有属性进行监听，如有变动可拿到最新值并通知订阅者，内部采用Object.defineProperty的getter和setter来实现。
+      Compile 指令解析器，它的作用对每个元素节点的指令进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数。
+      Watcher 订阅者， 作为连接 Observer 和 Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数。
+      Dep 消息订阅器，内部维护了一个数组，用来收集订阅者（Watcher），数据变动触发notify 函数，再调用订阅者的 update方法。
+
+	  监听器Observer相当于Model层观察vue实例中的data数据，当数据发生变化时，通知Watcher订阅者。
+	  解析器Compile指令解析器位于View层，初始化View的视图，将数据变化与更新函数绑定，传给Watcher订阅者。
+	  订阅者Watcher是整个模型的核心，对应ViewModel层，连接Observer和Compile。所有的Watchers存于Dep订阅器中，Watcher将Observer监听到的数据变化对应相应的回调函数，处理数据，反馈给View层更新界面视图。
+	2.生命周期的方法有：
+		1、beforeCreate
+	　　    在实例初始化之后，数据观测和event/watcher时间配置之前被调用。
+		2、created
+		　　实例已经创建完成之后被调用。在这一步，实例已经完成以下的配置：数据观测，属性和方法的运算，watch/event事件回调。然而，挂载阶段还没开始，$el属性目前不可见。
+		3、beforeMount
+		　　在挂载开始之前被调用：相关的render函数首次被调用。
+		　　该钩子在服务器端渲染期间不被调用。
+		4、mounted
+		　　el被新创建的vm.$el替换，并挂在到实例上去之后调用该钩子函数。如果root实例挂载了一个文档内元素，当mounted被调用时vm.$el也在文档内。
+		　　该钩子在服务端渲染期间不被调用。
+		5、beforeUpdate
+		　　数据更新时调用，发生在虚拟DOM重新渲染和打补丁之前。
+		　　你可以在这个钩子中进一步第更改状态，这不会触发附加的重渲染过程。
+		　　该钩子在服务端渲染期间不被调用。
+		6、updated
+		　　由于数据更改导致的虚拟DOM重新渲染和打补丁，在这之后会调用该钩子。
+		　　当这个钩子被调用时，组件DOM已经更新，所以你现在可以执行依赖于DOM的操作。然而在大多数情况下，你应该避免在此期间更改状态，因为这可能会导致更新无限循环。
+		　　该钩子在服务端渲染期间不被调用。
+		7、activated
+		　　keep-alive组件激活时调用。
+		　　该钩子在服务器端渲染期间不被调用。
+		8、deactivated
+		　　keep-alive组件停用时调用。
+		　　该钩子在服务端渲染期间不被调用。
+		9、beforeDestroy 【类似于React生命周期的componentWillUnmount】
+		　　实例销毁之间调用。在这一步，实例仍然完全可用。
+		　　该钩子在服务端渲染期间不被调用。
+		10、destroyed
+		　　Vue实例销毁后调用。调用后，Vue实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
+
+垃圾回收机制：
+1.标记清楚
+这是JavaScript最常见的垃圾回收方式，当变量进入执行环境的时候，比如函数中声明一个变量，垃圾回收器将其标记为“进入环境”，当变量离开环境的时候（函数执行结束）将其标记为“离开环境”
+2.引用计数
+引用计数的策略是跟踪记录每个值被使用的次数，当声明了一个变量并将一个引用类型赋值给该变量的时候这个值的引用次数就加1，如果该变量的值变成了另外一个，则这个值得引用次数减1，当这个值的引用次数变为0的时候，说明没有变量在使用，这个值没法被访问了，因此可以将其占用的空间回收，这样垃圾回收器会在运行的时候清理掉引用次数为0的值占用的空间。
+会有循环引用问题，导致无法回收变量
+
+其他：
+1.js有预编译过程，在执行函数时，会预编译var变量，也就是申明，但并赋值。然后再开始从上往下执行。
+
+2019年添加：
+1.HTML5的form关闭自动完成功能？
+答：设置autocomplete=off
+
+2.如何实现多个标签页之间的通信？
+答：webSocket,localStorage
+	localstorge另一个浏览上下文里被添加、修改或删除时，它都会触发一个storage事件，我们通过监听事件，控制它的值来进行页面信息通信；
+	注意quirks：Safari 在无痕模式下设置localstorge值时会抛出 QuotaExceededError 的异常；
+
+3.页面可见性（Page Visibility API） 可以有哪些用途？
+答：通过 visibilityState 的值检测页面当前是否可见，以及打开网页的时间等,值改变触发visibilitychange给document;
+	在页面被切换到其他后台进程的时候，自动暂停音乐或视频的播放；
+
+4.滚动视差怎样实现？
+答：1.css3的background-attachment:fixed实现，固定背景图不移动，
+	2.js控制背景层和内容层的位置top值等。根据鼠标或者window的scrollTop值改变
+
+5.修改chrome记住密码后自动填充表单的黄色背景 ？
+答：input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+    background-color: rgb(250, 255, 189); /* #FAFFBD; */
+    background-image: none;
+    color: rgb(0, 0, 0);
+  }
+
+ 6.让页面里的字体变清晰，变细用CSS怎么做？
+ 答：-webkit-font-smoothing: antialiased;
+
+7.Object.create()和new Object 和 {} 什么区别
+ 答：Object.create(null , property)
+
+8.JavaScript有几种类型的值？，你能画一下他们的内存图吗？
+ 答：栈：原始数据类型（Undefined，Null，Boolean，Number、String）
+ 	堆：引用数据类型（对象、数组和函数正则、Date）
+ 	两种类型的区别是：存储位置不同；
+ 	原始数据类型直接存储在栈(stack)中的简单数据段，占据空间小、大小固定，属于被频繁使用数据，所以放入栈中存储；
+ 	引用数据类型存储在堆(heap)中的对象,占据空间大、大小不固定。如果存储在栈中，将会影响程序运行的性能；引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体
+
+9.jQuery.fn的init方法返回的this指的是什么对象？为什么要返回this？
+答：返回的是this是一个类数组对象，可以链式调用。
+
+10.jQuery中如何将数组转化为json字符串，然后再转化回来？
+答：JSON.stringify JSON.parse
+
+11.jQuery 的属性拷贝(extend)的实现原理是什么，如何实现深拷贝？
+答：浅拷贝和深拷贝（递归拷贝）
+
+12.jquery.extend 与 jquery.fn.extend的区别？
+ 答：jquery.extend 为jquery类添加类方法，可以理解为添加静态方法
+ 	jquery.fn.extend:源码中jquery.fn = jquery.prototype，所以对jquery.fn的扩展，就是为jquery类添加成员函数
+ 	使用：
+ 	jquery.extend扩展，需要通过jquery类来调用，而jquery.fn.extend扩展，所有jquery实例都可以直接调用。
+
+13.JQuery一个对象可以同时绑定多个事件，底层原理？
+答：不同的事件绑定，具体是由jQuery内部维护的事件列队来区分（就是那个elemData.events）
+
+14.需求：实现一个页面操作不会整页刷新的网站，并且能在浏览器前进、后退时正确响应。给出你的技术实现方案？
+答：HTML5里引入了新的API，即：history.pushState, history.replaceState
+    history.pushState(state, title, url) history.replaceState(state, title, url) window.onpopstate相关触发的事件
+    history.go和history.back（包括用户按浏览器历史前进后退按钮）触发，并且页面无刷的时候（由于使用pushState修改了history）会触发popstate事件，
+    事件发生时浏览器会从history中取出URL和对应的state对象替换当前的URL和history.state。通过event.state也可以获取history.state。
+
+	hash实现：监听路由变化window.addEventListener('hashchange', handler , false); location.hash获取和改变hash
+
+15.React和Vue区别？
+答：可从语法： 
+		React是HTML 语言直接写在 JavaScript 语言之中，不加任何引号，这就是 JSX 的语法，它允许 HTML 与 JavaScript 的混写
+		Vue使用了基于 HTML 的模版语法，允许开发者声明式地将 DOM 绑定至底层 Vue 实例的数据。
+	虚拟DOM：
+		const createEl = (tagName, props, children) => new CreactEl(tagName, props, children)
+		const vdom = createEl('div', { 'id': 'box' }, [
+			createEl('h1', { style: 'color: pink' }, ['I am H1']),
+			createEl('ul', {class: 'list'}, [createEl('li', ['#list1']), createEl('li', ['#list2'])]),
+			createEl('p', ['I am p'])
+		])
+		class CreateEl {
+			constructor (tagName, props, children) {
+				// 当只有两个参数的时候 例如 celement(el, [123])
+				if (Array.isArray(props)) {
+				children = props
+				props = {}
+				}
+				// tagName, props, children数据保存到this对象上
+				this.tagName = tagName
+				this.props = props || {}
+				this.children = children || []
+				this.key = props ? props.key : undefined
+
+				let count = 0
+				this.children.forEach(child => {
+				if (child instanceof CreateEl) {
+					count += child.count
+				} else {
+					child = '' + child
+				}
+				count++
+				})
+				// 给每一个节点设置一个count
+				this.count = count
+			}
+			// 构建一个 dom 树
+			render () {
+				// 创建dom
+				const el = document.createElement(this.tagName)
+				const props = this.props
+				// 循环所有属性，然后设置属性
+				for (let [key, val] of Object.entries(props)) {
+				setAttr(el, key, val)
+				}
+				this.children.forEach(child => {
+				// 递归循环 构建tree
+				let childEl = (child instanceof CreateEl) ? child.render() : document.createTextNode(child)
+				el.appendChild(childEl)
+				})
+				return el
+			}
+		}
+		const rootnode = vdom.render()
+		document.body.appendChild(rootnode)
+	diff算法：只更新一次
+
+	状态管理:
+		Redux
+		数据流：view——>actions——>reducer——>state变化——>view变化（同步异步一样）
+		Vuex
+		数据流：
+		view——>commit——>mutations——>state变化——>view变化（同步操作） 
+		view——>dispatch——>actions——>mutations——>state变化——>view变化（异步操作）
+	路由:
+		React-router-dom
+		1.react-router是全局组件方式。例如Route是可以组件方式写入jsx中。
+		2. react-router支持对象形式和JSX语法的组件形式配置。
+		3. react-router子组件作为children被传入父组件，而根组件被渲染到<Router>位置。
+		Vue-router
+		1.vue-router是全局配置方式。
+		2.vue-router仅支持对象形式的配置，
+		3.vue-router任何路由组件都会被渲染到<router-view>位置
+	性能优化：
+		React在 React 应用中，当某个组件的状态发生变化时，它会以该组件为根，重新渲染整个组件子树。
+		1.使用shouldComponentUpdate
+		2.immutable 不可变对象，每次修改返回新的immutable对象
+		3.无状态组件
+		4.高阶组件：将组件转换为另一个组件
+		Vue组件的依赖是在渲染过程中自动追踪的，所以系统能精确知晓哪个组件确实需要被重渲染。
+
+16.传参传引用问题
+	var arr1 = [1,2,3,4];
+	var arr2 = [{a:1},{a:2},{a:3}];
+	arr1.forEach(item =>{
+		item = item * item;
+	});
+	arr2.forEach(item =>{
+		item.a = item.a * item.a;
+	});
+	console.log(arr1); // [1,2,3,4]
+	console.log(arr1); // [{a:1},{a:4},{a:9}]
+	重点：forEach 中item传递的是基本类型，所以会先复制一份arr1[0]的值给item,所以不会改变arr1里面的值；
+		如果item是引用类型的值，传过来的是地址（指向地址，你动我也动），所以会变动地址里面的值；
+
+17.算法（二叉树遍历问题）
+	前序遍历：访问根–>遍历左子树–>遍历右子树;
+	中序遍历：遍历左子树–>访问根–>遍历右子树;
+	后序遍历：遍历左子树–>遍历右子树–>访问根;
+	广度遍历：按照层次一层层遍历;
+	var tree = {
+		value: "-",
+		left: {
+			value: '+',
+			left: {
+				value: 'a',
+			},
+			right: {
+				value: '*',
+				left: {
+					value: 'b',
+				},
+				right: {
+					value: 'c',
+				}
+			}
+		},
+		right: {
+			value: '/',
+			left: {
+				value: 'd',
+			},
+			right: {
+				value: 'e',
+			}
+		}
+	}
+    //前序递归遍历
+    function preListRec(node) {
+        var preList = [];
+        var preOrderRec = function(node) {
+            if (node) {
+                preList.push(node.value);
+                preOrderRec(node.left);
+                preOrderRec(node.right);
+            }
+        };
+        preOrderRec(node);
+        return preList;
+    }
+    console.log('前序遍历递归：' + preListRec(tree));
+    /*
+    前序遍历非递归
+    思想：先序非递归遍历是利用了栈，将根结点放入栈中，然后再取出来，将值放入结果数组，
+    然后如果存在右子树，将右子树压入栈，如果存在左子树，将左子树压入栈，
+    然后循环判断栈是否为空，重复上述步骤。
+    */
+    function preListNonRec(node) {
+        if (node) {
+            var preList = [];
+            var stack = [node]; //将二叉树压入栈
+            while (stack.length !== 0) { //如果栈不为空，则循环遍历
+                var curNode = stack.pop(); //从栈中取出一个结点
+                preList.push(curNode.value); //将取出结点的值存入数组中
+                curNode.right && stack.push(curNode.right); //如果存在右子树，将右子树压入栈
+                curNode.left && stack.push(curNode.left); //如果存在左子树，将左子树压入栈
+            }
+        }
+        return preList;
+    }
+    console.log('前序遍历非递归：' + preListNonRec(tree));
+
+    //中序遍历
+    function inListRec(node) {
+        var inList = [];
+        var inOrderRec = function(node) {
+            if (node) {
+                inOrderRec(node.left);
+                inList.push(node.value);
+                inOrderRec(node.right);
+            }
+        };
+        inOrderRec(node);
+        return inList;
+    }
+    console.log('中序遍历递归：' + inListRec(tree));
+    /*
+    中序遍历非递归
+    思想：将当前结点压入栈，然后将左子树当做当前结点，
+    如果当前结点为空，将双亲结点取出来，将值保存进数组，
+    然后将右子树当做当前结点，进行循环。
+    */
+    function inListNonRec(node) {
+        if (node) {
+            var inList = [];
+            var stack = [node]; //建立一个栈
+            var curNode = stack.pop(); //
+            while (stack.length !== 0 || curNode) { //如果栈不为空或结点不为空，则循环遍历
+                if (curNode) { //如果结点不为空
+                    stack.push(curNode); //将结点压入栈
+                    curNode = curNode.left; //将左子树作为当前结点
+                } else { //左子树为空，即没有左子树的情况
+                    curNode = stack.pop(); //将结点取出来
+                    inList.push(curNode.value); //将取出结点的值存入数组中
+                    curNode = curNode.right; //将右结点作为当前结点
+                }
+            }
+        }
+        return inList;
+    }
+    console.log('中序遍历非递归：' + inListNonRec(tree));
+
+    //后序遍历
+    function postListRec(node) {
+        var postList = [];
+        var postOrderRec = function(node) {
+            if (node) {
+                postOrderRec(node.left);
+                postOrderRec(node.right);
+                postList.push(node.value);
+            }
+        };
+        postOrderRec(node);
+        return postList;
+    }
+    console.log('后序遍历递归：' + postListRec(tree));
+    /*
+    后序遍历非递归
+    思想：将当前结点压入栈，然后将左子树当做当前结点，
+    如果当前结点为空，将双亲结点取出来，将值保存进数组，
+    然后将右子树当做当前结点，进行循环。
+    */
+    function postListNonRec(node) {
+        if (node) {
+            var postList = [];
+            var stack = [node]; //将二叉树压入栈
+            var stackTopNode = null; //定义缓存变量
+            while (stack.length !== 0) { //如果栈不为空，则循环遍历
+                stackTopNode = stack[stack.length - 1]; //将栈顶的值保存在stackTopNode中
+                if (stackTopNode.left && node !== stackTopNode.left && node !== stackTopNode.right) { //如果存在左子树
+                    stack.push(stackTopNode.left); //将左子树结点压入栈
+                } else if (stackTopNode.right && node !== stackTopNode.right) { //如果结点存在右子树
+                    stack.push(stackTopNode.right); //将右子树压入栈中
+                } else {
+                    postList.push(stack.pop().value);
+                    node = stackTopNode;
+                }
+            }
+        }
+        return postList;
+    }
+    console.log('后序遍历非递归：' + postListNonRec(tree));
+
+    //广度遍历
+    function breadthTraversal(node) {
+        var breadthList = [];
+        var count = 0; //树的层数
+        var que = [node];
+        while (count < que.length) {
+            breadthList.push(que[count].value);
+            que[count].left && que.push(que[count].left);
+            que[count].right && que.push(que[count].right);
+            count++;
+        }
+        return breadthList;
+    }
+    console.log('广度遍历非递归：' + breadthTraversal(tree));
+
+18.移动端高清方案
+	1.rem布局（js设置根元素font-size）
+	2.用单位vw,vh设置根元素font-size为vm (屏幕宽375px , 1vw = 375/100 = 3.75 px , 100px = 100 / 3.75 = 26.67vw)
+	3.不同分辨率屏幕下图片模糊问题：不同的dpr下，加载不同的尺寸的图片。不管是通过CSS媒体查询，还是通过JS条件判断都是可以的。
+	4.1px问题：伪元素+transform（构建1个伪元素, border为1px, 再以transform缩放到50%。）
+		用JS计算rem基准值和viewport缩放值（手淘的flexible , scale = 1 / (window.devicePixelRatio || 1)）
+
+19.flex横向滚动布局，不出现滚动条
+	父元素：display:flex;overflow-x:auto;
+	子元素：flex:none;//确保子元素不被压缩
+
+20.call和apply的实现
+	var apple = {size: 3}
+	function eat() {console.log(this.size);}
+	eat.call(apple); // 3
+	call实现：
+	Function.prototype.call2 = function (ctx) {
+		var ctx = ctx || window;
+		var args = [];
+		for (var i = 1; i < arguments.length; i++) {
+			args.push('arguments[' + i + ']');
+		}
+		ctx.fn = this;  // this为调用call的函数
+		var result = eval('ctx.fn(' + args + ')');
+		delete ctx.fn;
+		return result;
+	}
+	eat.call2(apple);
+	apply实现：
+	Function.prototype.apply2 = function (ctx, array) {
+		var ctx = ctx || window;
+		ctx.fn = this;
+		var result;
+		if (!array) {
+			result = ctx.fn();
+		} else {
+			var args = [];
+			for (var i = 0; i < array.length; i++) {
+				args.push('array[' + i + ']');
+			}
+			result = eval('ctx.fn(' + args + ')');
+		}
+		delete ctx.fn;
+		return result;
+	}
