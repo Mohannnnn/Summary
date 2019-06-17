@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<head>
+    <title>myVue</title>
+</head>
+<style>
+    #app {
+        text-align: center;
+    }
+</style>
+
+<body>
+    <div id="app">
+        <form>
+            <input type="text" v-model="number">
+            <button type="button" v-click="increment">增加</button>
+        </form>
+        <h3 v-bind="number"></h3>
+        <form>
+            <input type="text" v-model="count">
+            <button type="button" v-click="incre">增加</button>
+        </form>
+        <h3 v-bind="count"></h3>
+        <input type="text" id="input">
+        <p id="p"></p>
+        <input type="text" id="input1">
+        <p id="p1"></p>
+    </div>
+</body>
+
+<script>
+    function myVue(options) {
+        this._init(options);
+    }
+
+    myVue.prototype._init = function(options) {
+        this.$options = options;
+        this.$el = document.querySelector(options.el);
+        this.$data = options.data;
+        this.$methods = options.methods;
+
+        this._binding = {};
+        this._obverse(this.$data);
+        this._complie(this.$el);
+    }
+
+    myVue.prototype._obverse = function(obj) {
+        var _this = this;
+        Object.keys(obj).forEach(function(key) {
+            if (obj.hasOwnProperty(key)) {
+                _this._binding[key] = {
+                    _directives: []
+                };
+                console.log(_this._binding)
+                var value = obj[key];
+                if (typeof value === 'object') {
+                    _this._obverse(value);
+                }
+                var binding = _this._binding[key];
+                Object.defineProperty(_this.$data, key, {
+                    enumerable: true,
+                    configurable: true,
+                    get: function() {
+                        console.log(`${key}获取${value}`);
+                        return value;
+                    },
+                    set: function(newVal) {
+                        console.log(`${key}更新${newVal}`);
+                        if (value !== newVal) {
+                            value = newVal;
+                            binding._directives.forEach(function(item) {
+                                item.update();
+                            })
+                        }
+                    }
+                })
+            }
+        })
+    }
+
+    myVue.prototype._complie = function(root) {
+        var _this = this;
+        var nodes = root.children;
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            if (node.children.length) {
+                this._complie(node);
+            }
+
+            if (node.hasAttribute('v-click')) {
+                node.onclick = (function() {
+                    var attrVal = nodes[i].getAttribute('v-click');
+                    return _this.$methods[attrVal].bind(_this.$data);
+                })();
+            }
+
+            if (node.hasAttribute('v-model') && (node.tagName = 'INPUT' || node.tagName == 'TEXTAREA')) {
+                node.addEventListener('input', (function(key) {
+                    var attrVal = node.getAttribute('v-model');
+                    _this._binding[attrVal]._directives.push(new Watcher(
+                        'input',
+                        node,
+                        _this,
+                        attrVal,
+                        'value'
+                    ))
+                    return function() {
+                        _this.$data[attrVal] = nodes[key].value;
+                    }
+                })(i));
+            }
+
+            if (node.hasAttribute('v-bind')) {
+                var attrVal = node.getAttribute('v-bind');
+                _this._binding[attrVal]._directives.push(new Watcher(
+                    'text',
+                    node,
+                    _this,
+                    attrVal,
+                    'innerHTML'
+                ))
+            }
+        }
+    }
+
+    function Watcher(name, el, vm, exp, attr) {
+        this.name = name; //指令名称，例如文本节点，该值设为"text"
+        this.el = el; //指令对应的DOM元素
+        this.vm = vm; //指令所属myVue实例
+        this.exp = exp; //指令对应的值，本例如"number"
+        this.attr = attr; //绑定的属性值，本例为"innerHTML"
+
+        this.update();
+    }
+
+    Watcher.prototype.update = function() {
+        this.el[this.attr] = this.vm.$data[this.exp];
+    }
+
+    window.onload = function() {
+        var app = new myVue({
+            el: '#app',
+            data: {
+                number: 0,
+                count: 0,
+            },
+            methods: {
+                increment: function() {
+                    this.number++;
+                },
+                incre: function() {
+                    this.count++;
+                }
+            }
+        })
+
+        function deepCopy(cobj, tobj) {
+            var tb = tobj || (cobj.constructor === Object ? {} : []);
+            for (var key in cobj) {
+                if (typeof cobj[key] === 'object') {
+                    tb[key] = (cobj[key].constructor === Object) ? {} : [];
+                    var a = deepCopy(cobj[key], tb[key]);
+                } else {
+                    tb[key] = cobj[key];
+                }
+            }
+            return tb;
+        }
+        var a = [1, 2, 6, {
+            a: [1, 2]
+        }];
+        var b = deepCopy(a);
+        console.log(b, b === a);
+
+        //Proxy实现双向绑定
+        var input = document.querySelector('#input');
+        var p = document.querySelector('#p');
+        var newObj = new Proxy({}, {
+            get: function(target, key, receiver) {
+                console.log(`get ${key}`);
+                return Reflect.get(target, key, receiver);
+            },
+            set: function(target, key, value, receiver) {
+                console.log(`set ${key}, oldValue ${newObj[key]} , newValue ${value}`);
+                if (key === 'text' && newObj[key] != value) {
+                    input.value = value;
+                    p.innerHTML = value;
+                }
+                var reflect = Reflect.set(target, key, value, receiver); //boolean
+                return reflect;
+            }
+        })
+        input.addEventListener('keyup', function(e) {
+            newObj.text = e.target.value;
+        });
+
+        //Object.defineProperty 有set和get是设置的访问器属性，不可通过obj[属性]获取
+        //数据属性作用：修改属性默认的特性 （会新建出数据属性）
+        //访问器的作用：访问和设置数据属性的属性值，不会创建出
+        //缺点：第一个缺陷,无法监听数组变化  .第二个缺陷,只能劫持对象的属性,
+        var input1 = document.querySelector('#input1');
+        var p1 = document.querySelector('#p1');
+        var obj = {
+            _text: '1',
+            text: '1'
+        };
+        Object.defineProperty(obj, 'text', {
+            enumerable: true,
+            configurable: true,
+            get: function() {
+                console.log(`get text`);
+                return input1.value;
+            },
+            set: function(newVal) {
+                console.log(`set text, oldValue ${obj} ,  newValue ${newVal}`);
+                if (input1.value !== newVal) {
+                    input1.value = newVal;
+                    p1.innerHTML = newVal;
+                }
+            }
+        })
+        input1.addEventListener('keyup', function(e) {
+            obj['text'] = e.target.value;
+            console.log(obj)
+        });
+    }
+
+    var tree = {
+            value: "-",
+            left: {
+                value: '+',
+                left: {
+                    value: 'a',
+                },
+                right: {
+                    value: '*',
+                    left: {
+                        value: 'b',
+                    },
+                    right: {
+                        value: 'c',
+                    }
+                }
+            },
+            right: {
+                value: '/',
+                left: {
+                    value: 'd',
+                },
+                right: {
+                    value: 'e',
+                }
+            }
+        }
+        //前序递归遍历
+    function preListRec(node) {
+        var preList = [];
+        var preOrderRec = function(node) {
+            if (node) {
+                preList.push(node.value);
+                preOrderRec(node.left);
+                preOrderRec(node.right);
+            }
+        };
+        preOrderRec(node);
+        return preList;
+    }
+    console.log('前序遍历递归：' + preListRec(tree));
+    /*
+    前序遍历非递归
+    思想：先序非递归遍历是利用了栈，将根结点放入栈中，然后再取出来，将值放入结果数组，
+    然后如果存在右子树，将右子树压入栈，如果存在左子树，将左子树压入栈，
+    然后循环判断栈是否为空，重复上述步骤。
+    */
+    function preListNonRec(node) {
+        if (node) {
+            var preList = [];
+            var stack = [node]; //将二叉树压入栈
+            while (stack.length !== 0) { //如果栈不为空，则循环遍历
+                var curNode = stack.pop(); //从栈中取出一个结点
+                preList.push(curNode.value); //将取出结点的值存入数组中
+                curNode.right && stack.push(curNode.right); //如果存在右子树，将右子树压入栈
+                curNode.left && stack.push(curNode.left); //如果存在左子树，将左子树压入栈
+            }
+        }
+        return preList;
+    }
+    console.log('前序遍历非递归：' + preListNonRec(tree));
+
+    //中序遍历
+    function inListRec(node) {
+        var inList = [];
+        var inOrderRec = function(node) {
+            if (node) {
+                inOrderRec(node.left);
+                inList.push(node.value);
+                inOrderRec(node.right);
+            }
+        };
+        inOrderRec(node);
+        return inList;
+    }
+    console.log('中序遍历递归：' + inListRec(tree));
+    /*
+    中序遍历非递归
+    思想：将当前结点压入栈，然后将左子树当做当前结点，
+    如果当前结点为空，将双亲结点取出来，将值保存进数组，
+    然后将右子树当做当前结点，进行循环。
+    */
+    function inListNonRec(node) {
+        if (node) {
+            var inList = [];
+            var stack = [node]; //建立一个栈
+            var curNode = stack.pop(); //
+            while (stack.length !== 0 || curNode) { //如果栈不为空或结点不为空，则循环遍历
+                if (curNode) { //如果结点不为空
+                    stack.push(curNode); //将结点压入栈
+                    curNode = curNode.left; //将左子树作为当前结点
+                } else { //左子树为空，即没有左子树的情况
+                    curNode = stack.pop(); //将结点取出来
+                    inList.push(curNode.value); //将取出结点的值存入数组中
+                    curNode = curNode.right; //将右结点作为当前结点
+                }
+            }
+        }
+        return inList;
+    }
+    console.log('中序遍历非递归：' + inListNonRec(tree));
+
+    //后序遍历
+    function postListRec(node) {
+        var postList = [];
+        var postOrderRec = function(node) {
+            if (node) {
+                postOrderRec(node.left);
+                postOrderRec(node.right);
+                postList.push(node.value);
+            }
+        };
+        postOrderRec(node);
+        return postList;
+    }
+    console.log('后序遍历递归：' + postListRec(tree));
+    /*
+    后序遍历非递归
+    思想：将当前结点压入栈，然后将左子树当做当前结点，
+    如果当前结点为空，将双亲结点取出来，将值保存进数组，
+    然后将右子树当做当前结点，进行循环。
+    */
+    function postListNonRec(node) {
+        if (node) {
+            var postList = [];
+            var stack = [node]; //将二叉树压入栈
+            var stackTopNode = null; //定义缓存变量
+            while (stack.length !== 0) { //如果栈不为空，则循环遍历
+                stackTopNode = stack[stack.length - 1]; //将栈顶的值保存在stackTopNode中
+                if (stackTopNode.left && node !== stackTopNode.left && node !== stackTopNode.right) { //如果存在左子树
+                    stack.push(stackTopNode.left); //将左子树结点压入栈
+                } else if (stackTopNode.right && node !== stackTopNode.right) { //如果结点存在右子树
+                    stack.push(stackTopNode.right); //将右子树压入栈中
+                } else {
+                    postList.push(stack.pop().value);
+                    node = stackTopNode;
+                }
+            }
+        }
+        return postList;
+    }
+    console.log('后序遍历非递归：' + postListNonRec(tree));
+
+    //广度遍历
+    function breadthTraversal(node) {
+        var breadthList = [];
+        var count = 0; //树的层数
+        var que = [node];
+        while (count < que.length) {
+            breadthList.push(que[count].value);
+            que[count].left && que.push(que[count].left);
+            que[count].right && que.push(que[count].right);
+            count++;
+        }
+        return breadthList;
+    }
+    console.log('广度遍历非递归：' + breadthTraversal(tree));
+</script>
