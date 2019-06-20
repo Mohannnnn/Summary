@@ -194,9 +194,10 @@
             newObj.text = e.target.value;
         });
 
-        //Object.defineProperty 有set和get是设置的访问器属性，不可通过obj[属性]获取
+        //Object.defineProperty 有set和get是设置的访问器属性
         //数据属性作用：修改属性默认的特性 （会新建出数据属性）
         //访问器的作用：访问和设置数据属性的属性值，不会创建出
+        //数据属性不仅可以直接访问和设置（对象.属性/obj.key的形式)，也可以通过定义的访问器（getter setter）来专门访问和设置。
         //缺点：第一个缺陷,无法监听数组变化  .第二个缺陷,只能劫持对象的属性,
         var input1 = document.querySelector('#input1');
         var p1 = document.querySelector('#p1');
@@ -212,7 +213,7 @@
                 return input1.value;
             },
             set: function(newVal) {
-                console.log(`set text, oldValue ${obj} ,  newValue ${newVal}`);
+                console.log(`set text, oldValue ${obj.text} ,  newValue ${newVal}`);
                 if (input1.value !== newVal) {
                     input1.value = newVal;
                     p1.innerHTML = newVal;
