@@ -83,8 +83,8 @@ var throttle = function (callback , delay ,time) {
 		}
 	}
 }
-
-2.原型（function.__proto__ = Function.prototype,function a(){}  a.prototype.__proto__ = object.prototype）
+   
+2.原型（function.__proto__ = Function.prototype,function a(){}  a.prototype.__proto__ = Object.prototype）
 	判断一个对象是否指向了该构造函数的原型对象，可以使用 isPrototypeOf()方法来测试。
 	alert(Box.prototype.isPrototypeOf(box)); //只要实例化对象，即都会指向
 	如何判断属性是在构造函数的实例里，还是在原型里？可以使用 hasOwnProperty()函数来验证：
@@ -165,7 +165,8 @@ javascript四种常见的内存泄漏：
 	        	console.log(someMessage);
 	      	}
 	    };
-	    //这句能够消除内存泄露问题：originalThing = null;
+	    //这句能够消除内存泄露问题：
+		originalThing = null;
 	};
 	setInterval(replaceThing, 1000);
 
