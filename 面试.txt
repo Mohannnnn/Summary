@@ -1166,3 +1166,86 @@ Vue:
 		delete ctx.fn;
 		return result;
 	}
+
+21.js实现一个带并发数限制的异步函数
+	async 实现
+     let mapLimit  = (listArr , limit , handle) => {
+        let listCopy = [].concat(listArr);
+        let resultList = [];
+        let curNum = 0;
+        while(curNum < limit){
+          request();
+        }
+        async function request(){
+          const url = listCopy.shift();
+          if(!url) return;
+          console.log(url + '---start');
+          curNum ++ ;
+          let res = new Promise((resolve , reject) => {
+              resolve(url);
+          })
+          await res;
+          console.log(url + '---end');
+          curNum -- ;
+          if(url) {
+            request();
+          }
+          if(curNum == 0){
+            handle();
+          }
+          res.then(ress => {
+            resultList.push(ress);
+          })
+        }
+        return  new Promise(resolve => {
+          // setTimeout(() => {
+             resolve(resultList);
+          //  } , 0);
+        }).then(res => {
+          return res
+        })
+      }
+      mapLimit([1,2,3,4,5,6,7,8,9,11,100,123] , 6 , function(){
+        console.log('handle');
+      }).then(res => {
+        console.log(res)
+      })
+	Promise 实现
+      const sendRequest =  (urls , max , callback) => {
+        let curStarting = 0; //当前并发量
+        let finishedArr = []; //完成数组
+        const total = urls.length;
+        const handler = (pro) => {
+          if(urls.length){
+            const url = urls.shift();
+            curStarting ++ ;
+            console.log(url , 'start' , '当前并发量：', curStarting)
+            new Promise(resolve => {
+              resolve(url);
+            }).then(res => {
+              finishedArr.push(res);
+              curStarting --;
+              if(curStarting < max) {
+                console.log(res , 'end','当前并发量：', curStarting)
+                handler();
+              }
+            })
+          }
+          if(finishedArr.length >= total){
+             callback();
+          }
+        }
+        for(let i = 0; i < max; i++){
+          handler();
+        }
+        return new Promise(resolve => {
+           setTimeout(() => {
+             resolve(finishedArr);
+           } , 0);
+        })
+      }
+      sendRequest([1,2,3,4,5,6,7,8,9,11,100,123] , 3 , function(){
+        console.log('handle');
+      }).then(res => {
+        console.log(res);
+      })
