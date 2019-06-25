@@ -1,0 +1,170 @@
+1.HTML5的form关闭自动完成功能？
+答：设置autocomplete=off
+
+2.如何实现多个标签页之间的通信？
+答：webSocket,localStorage
+	localstorge另一个浏览上下文里被添加、修改或删除时，它都会触发一个storage事件，我们通过监听事件，控制它的值来进行页面信息通信；
+	注意quirks：Safari 在无痕模式下设置localstorge值时会抛出 QuotaExceededError 的异常；
+
+3.页面可见性（Page Visibility API） 可以有哪些用途？
+答：通过 visibilityState 的值检测页面当前是否可见，以及打开网页的时间等,值改变触发visibilitychange给document;
+	在页面被切换到其他后台进程的时候，自动暂停音乐或视频的播放；
+
+4.滚动视差怎样实现？
+答：1.css3的background-attachment:fixed实现，固定背景图不移动，
+	2.js控制背景层和内容层的位置top值等。根据鼠标或者window的scrollTop值改变
+
+5.修改chrome记住密码后自动填充表单的黄色背景 ？
+答：input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+    background-color: rgb(250, 255, 189); /* #FAFFBD; */
+    background-image: none;
+    color: rgb(0, 0, 0);
+  }
+
+ 6.让页面里的字体变清晰，变细用CSS怎么做？
+ 答：-webkit-font-smoothing: antialiased;
+
+7.Object.create()和new Object 和 {} 什么区别
+ 答：Object.create(null , property)
+
+8.JavaScript有几种类型的值？，你能画一下他们的内存图吗？
+ 答：栈：原始数据类型（Undefined，Null，Boolean，Number、String）
+ 	堆：引用数据类型（对象、数组和函数正则、Date）
+ 	两种类型的区别是：存储位置不同；
+ 	原始数据类型直接存储在栈(stack)中的简单数据段，占据空间小、大小固定，属于被频繁使用数据，所以放入栈中存储；
+ 	引用数据类型存储在堆(heap)中的对象,占据空间大、大小不固定。如果存储在栈中，将会影响程序运行的性能；引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体
+
+9.jQuery.fn的init方法返回的this指的是什么对象？为什么要返回this？
+答：返回的是this是一个类数组对象，可以链式调用。
+
+10.jQuery中如何将数组转化为json字符串，然后再转化回来？
+答：JSON.stringify JSON.parse
+
+11.jQuery 的属性拷贝(extend)的实现原理是什么，如何实现深拷贝？
+答：浅拷贝和深拷贝（递归拷贝）
+
+12.jquery.extend 与 jquery.fn.extend的区别？
+ 答：jquery.extend 为jquery类添加类方法，可以理解为添加静态方法
+ 	jquery.fn.extend:源码中jquery.fn = jquery.prototype，所以对jquery.fn的扩展，就是为jquery类添加成员函数
+ 	使用：
+ 	jquery.extend扩展，需要通过jquery类来调用，而jquery.fn.extend扩展，所有jquery实例都可以直接调用。
+
+13.JQuery一个对象可以同时绑定多个事件，底层原理？
+答：不同的事件绑定，具体是由jQuery内部维护的事件列队来区分（就是那个elemData.events）
+
+14.需求：实现一个页面操作不会整页刷新的网站，并且能在浏览器前进、后退时正确响应。给出你的技术实现方案？
+答：HTML5里引入了新的API，即：history.pushState, history.replaceState
+    history.pushState(state, title, url) history.replaceState(state, title, url) window.onpopstate相关触发的事件
+    history.go和history.back（包括用户按浏览器历史前进后退按钮）触发，并且页面无刷的时候（由于使用pushState修改了history）会触发popstate事件，
+    事件发生时浏览器会从history中取出URL和对应的state对象替换当前的URL和history.state。通过event.state也可以获取history.state。
+
+	hash实现：监听路由变化window.addEventListener('hashchange', handler , false);
+
+15.React和Vue区别？
+答：可从语法： 
+		React是HTML 语言直接写在 JavaScript 语言之中，不加任何引号，这就是 JSX 的语法，它允许 HTML 与 JavaScript 的混写
+		Vue使用了基于 HTML 的模版语法，允许开发者声明式地将 DOM 绑定至底层 Vue 实例的数据。
+	虚拟DOM：
+		const createEl = (tagName, props, children) => new CreactEl(tagName, props, children)
+		const vdom = createEl('div', { 'id': 'box' }, [
+			createEl('h1', { style: 'color: pink' }, ['I am H1']),
+			createEl('ul', {class: 'list'}, [createEl('li', ['#list1']), createEl('li', ['#list2'])]),
+			createEl('p', ['I am p'])
+		])
+		class CreateEl {
+			constructor (tagName, props, children) {
+				// 当只有两个参数的时候 例如 celement(el, [123])
+				if (Array.isArray(props)) {
+				children = props
+				props = {}
+				}
+				// tagName, props, children数据保存到this对象上
+				this.tagName = tagName
+				this.props = props || {}
+				this.children = children || []
+				this.key = props ? props.key : undefined
+
+				let count = 0
+				this.children.forEach(child => {
+				if (child instanceof CreateEl) {
+					count += child.count
+				} else {
+					child = '' + child
+				}
+				count++
+				})
+				// 给每一个节点设置一个count
+				this.count = count
+			}
+			// 构建一个 dom 树
+			render () {
+				// 创建dom
+				const el = document.createElement(this.tagName)
+				const props = this.props
+				// 循环所有属性，然后设置属性
+				for (let [key, val] of Object.entries(props)) {
+				setAttr(el, key, val)
+				}
+				this.children.forEach(child => {
+				// 递归循环 构建tree
+				let childEl = (child instanceof CreateEl) ? child.render() : document.createTextNode(child)
+				el.appendChild(childEl)
+				})
+				return el
+			}
+		}
+		const rootnode = vdom.render()
+		document.body.appendChild(rootnode)
+	diff算法：只更新一次
+		传统的diff算法：首先要对比每个节点是否相同，所以需要[两两]对比每个叶子节点是否相同，对比就需要O(n^2)次了，找到差异后还要计算最小转换方式，最终结果为O(n^3)
+		react diff算法：标准的O(n)，react树对比是按照层级去对比的， 他会给树编号0,1,2,3,4.... 然后相同的编号进行比较，所有的节点只遍历一次。
+		React认为：一个ReactElement的type不同，那么内容基本不会复用，所以直接删除节点，添加新节点，这是一个非常大的优化，大大减少了对比时间复杂度。
+	状态管理:
+		Redux
+		数据流：view——>actions——>reducer——>state变化——>view变化（同步异步一样）
+		Vuex
+		数据流：
+		view——>commit——>mutations——>state变化——>view变化（同步操作） 
+		view——>dispatch——>actions——>mutations——>state变化——>view变化（异步操作）
+	路由:
+		React-router-dom
+		1.react-router是全局组件方式。例如Route是可以组件方式写入jsx中。
+		2. react-router支持对象形式和JSX语法的组件形式配置。
+		3. react-router子组件作为children被传入父组件，而根组件被渲染到<Router>位置。
+		Vue-router
+		1.vue-router是全局配置方式。
+		2.vue-router仅支持对象形式的配置，
+		3.vue-router任何路由组件都会被渲染到<router-view>位置
+	性能优化：
+		React在 React 应用中，当某个组件的状态发生变化时，它会以该组件为根，重新渲染整个组件子树。
+		1.使用shouldComponentUpdate
+		2.immutable 不可变对象，每次修改返回新的immutable对象
+		3.无状态组件
+		4.高阶组件：将组件转换为另一个组件
+		Vue组件的依赖是在渲染过程中自动追踪的，所以系统能精确知晓哪个组件确实需要被重渲染。
+
+16.传参传引用问题
+	var arr1 = [1,2,3,4];
+	var arr2 = [{a:1},{a:2},{a:3}];
+	arr1.forEach(item =>{
+		item = item * item;
+	});
+	arr2.forEach(item =>{
+		item.a = item.a * item.a;
+	});
+	console.log(arr1); // [1,2,3,4]
+	console.log(arr1); // [{a:1},{a:4},{a:9}]
+	重点：forEach 中item传递的是基本类型，所以会先复制一份arr1[0]的值给item,所以不会改变arr1里面的值；
+		如果item是引用类型的值，传过来的是地址（指向地址，你动我也动），所以会变动地址里面的值；
+
+17.移动端高清方案
+	1.rem布局（js设置根元素font-size）
+	2.用单位vw,vh设置根元素font-size为vm (屏幕宽375px , 1vw = 375/100 = 3.75 px , 100px = 100 / 3.75 = 26.67vw)
+	3.不同分辨率屏幕下图片模糊问题：不同的dpr下，加载不同的尺寸的图片。不管是通过CSS媒体查询，还是通过JS条件判断都是可以的。
+	4.1px问题：伪元素+transform（构建1个伪元素, border为1px, 再以transform缩放到50%。）
+		用JS计算rem基准值和viewport缩放值（手淘的flexible , scale = 1 / (window.devicePixelRatio || 1)）
+
+18.flex横向滚动布局，不出现滚动条
+	父元素：display:flex;overflow-x:auto;
+	子元素：flex:none;//确保子元素不被压缩
+	
