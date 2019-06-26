@@ -427,6 +427,10 @@ javascript四种常见的内存泄漏：
       6、进入部署好的后端应用，如 PHP、Java、JavaScript、Python 等，找到对应的请求处理;
       7、处理结束回馈报头，此处如果浏览器访问过，缓存上有对应资源，会与服务器最后修改时间对比，一致则返回304;
       8、浏览器开始下载html文档(响应报头，状态码200)，同时使用缓存;
+	 	    解析代码：HTML代码解析为DOM，CSS代码解析为CSSOM（CSS Object Model）css规则树
+			对象合成：将DOM和CSSOM合成一棵渲染树（render tree）
+			布局：计算出渲染树的布局（layout）
+			绘制：将渲染树绘制到屏幕
       9、文档树建立，根据标记请求所需指定MIME类型的文件（比如css、js）,同时设置了cookie;
       10、页面开始渲染DOM，JS根据DOM API操作DOM,执行事件绑定等，页面显示完成。
 
@@ -466,6 +470,7 @@ javascript四种常见的内存泄漏：
     同一域名下实现：共享session
 21.浅拷贝和深拷贝
 答：浅拷贝；只是值的拷贝，而且所有的引用对象都是指向原来的地址。
+	for in 会遍历原型链上的可枚举属性
     实现：function shallowCopy(p) {
              var c = {};
              for (var i in p) {
@@ -809,6 +814,7 @@ Vue:
 答：webSocket,localStorage
 	localstorge另一个浏览上下文里被添加、修改或删除时，它都会触发一个storage事件，我们通过监听事件，控制它的值来进行页面信息通信；
 	注意quirks：Safari 在无痕模式下设置localstorge值时会抛出 QuotaExceededError 的异常；
+	Chrome 下必须由其他页面触发。IE,Firefox 可以本页面触发。
 
 3.页面可见性（Page Visibility API） 可以有哪些用途？
 答：通过 visibilityState 的值检测页面当前是否可见，以及打开网页的时间等,值改变触发visibilitychange给document;
@@ -829,7 +835,7 @@ Vue:
  答：-webkit-font-smoothing: antialiased;
 
 7.Object.create()和new Object 和 {} 什么区别
- 答：Object.create(null , property)
+ 答：Object.create()是添加在原型链上的，new Object()是构造函数来创建对象, 添加的属性是在自身实例下
 
 8.JavaScript有几种类型的值？，你能画一下他们的内存图吗？
  答：栈：原始数据类型（Undefined，Null，Boolean，Number、String）
@@ -923,11 +929,11 @@ Vue:
 
 	状态管理:
 		Redux
-		数据流：view——>actions——>reducer——>state变化——>view变化（同步异步一样）
+		数据流：view——>dispatch(actions)——>reducer——>store中state变化——>view变化（同步异步一样）
 		Vuex
 		数据流：
 		view——>commit——>mutations——>state变化——>view变化（同步操作） 
-		view——>dispatch——>actions——>mutations——>state变化——>view变化（异步操作）
+		view——>dispatch——>actions——>commit-->mutations——>state变化——>view变化（异步操作）
 	路由:
 		React-router-dom
 		1.react-router是全局组件方式。例如Route是可以组件方式写入jsx中。
