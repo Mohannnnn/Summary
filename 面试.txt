@@ -208,7 +208,7 @@ javascript四种常见的内存泄漏：
 		})
     </script>
 	服务器反向代理。
-	jsonp跨域：只有get请求，	
+	jsonp跨域：只有get请求，后端根据callback参数返回一个函数调用	
 		var script = document.createElement('script');
 		script.src = 'www.baidu.com?callback=test';
 		document.body.insertBefore(script , document.body.lastChild);
