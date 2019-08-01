@@ -6,35 +6,35 @@
     <title>css视差滚动</title>
     <!-- <link rel="stylesheet" type="text/css" href="index.css"> -->
     <style type="text/css" media="screen">
-    section {
-        height: 100vh;
-        background: rgba(0, 0, 0, .7);
-        color: #fff;
-        line-height: 100vh;
-        text-align: center;
-        font-size: 20vh;
-    }
-
-    .g-img1 {
-        background-image: url(http://pic7.photophoto.cn/20080407/0034034859692813_b.jpg);
-        background-attachment: fixed;
-        background-size: cover;
-        background-position: center center;
-    }
-
-    .g-img2 {
-        background-image: url(http://up.enterdesk.com/edpic_source/21/00/00/210000f8e772d7fc0758e67ae4b48807.jpg);
-        background-attachment: fixed;
-        background-size: cover;
-        background-position: center center;
-    }
-
-    .g-img3 {
-        background-image: url(https://images.unsplash.com/photo-1440688807730-73e4e2169fb8?dpr=1&auto=format&fit=crop&w=1500&h=1001&q=80&cs=tinysrgb&crop=);
-        background-attachment: fixed;
-        background-size: cover;
-        background-position: center center;
-    }
+        section {
+            height: 100vh;
+            background: rgba(0, 0, 0, .7);
+            color: #fff;
+            line-height: 100vh;
+            text-align: center;
+            font-size: 20vh;
+        }
+        
+        .g-img1 {
+            background-image: url(http://pic7.photophoto.cn/20080407/0034034859692813_b.jpg);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center center;
+        }
+        
+        .g-img2 {
+            background-image: url(http://up.enterdesk.com/edpic_source/21/00/00/210000f8e772d7fc0758e67ae4b48807.jpg);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center center;
+        }
+        
+        .g-img3 {
+            background-image: url(https://images.unsplash.com/photo-1440688807730-73e4e2169fb8?dpr=1&auto=format&fit=crop&w=1500&h=1001&q=80&cs=tinysrgb&crop=);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center center;
+        }
     </style>
 </head>
 
@@ -48,6 +48,151 @@
     <section class="g-word">Footer</section>
 </body>
 <script type="text/javascript">
+    Function.prototype.mycall = function(ctx) {
+        var ctx = ctx || window;
+        var args = [];
+        for (var i = 1; i < arguments.length; i++) {
+            args.push(arguments[i]);
+        }
+        ctx.fn = this;
+        var result = ctx.fn(...args);
+        delete ctx.fn;
+        return result;
+    }
+    Function.prototype.myapply = function(ctx, array) {
+        var ctx = ctx || window;
+        var args = [];
+        ctx.fn = this;
+        var result = ctx.fn(array);
+        delete ctx.fn;
+        return result;
+    }
+    var apple = {
+        size: 3
+    }
+
+    function eat(a) {
+        console.log(this.size, a);
+    }
+    eat.mycall(apple, 1, 2);
+    eat.myapply(apple, [1, 2]);
+
+    window.addEventListener("storage", onStorageChange, false);
+
+    function onStorageChange(event) {
+        console.log(event, event.key); //event有key,oldValue,newValue,url属性
+    }
+    setTimeout(function() {
+        localStorage.setItem('a', 'aaa')
+    }, 1000)
+
+    function search(arr, str) {
+        var rowArr = [];
+        var colArr = [];
+        arr.forEach((items, i) => {
+            rowArr[i] = items.join('');
+            items.forEach((item, j) => {
+                colArr[j] = (colArr[j] || '') + item;
+            })
+        })
+        console.log(rowArr.concat(colArr))
+        return rowArr.concat(colArr).some(item => {
+            return item.indexOf(str) != -1
+        });
+    }
+    console.log(search([
+        ['a', 'c', 'd', 'z'],
+        ['x', 't', 'r', 'o'],
+        ['f', 'i', 'w', 'o']
+    ], 'afx'))
+
+    function bubbleSort(arr) {
+        var i, j, len = arr.length;
+        for (i = 0; i < len; i++) {
+            var exchange = 1;
+            for (j = 0; j < len - i; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    var temp = arr[j + 1];
+                    arr[j + 1] = arr[j];
+                    arr[j] = temp;
+                    exchange = 0;
+                }
+            }
+            console.log(arr)
+            if (exchange) return arr;
+        }
+        return arr;
+    }
+    console.log(bubbleSort([3, 5, 2, 4]))
+
+
+    function a(arr, num) {
+        var num = num || 0;
+        if (num < arr.length - 1) {
+            return arr[num] + a(arr, num + 1);
+        } else {
+            return arr[num];
+        }
+    }
+    console.log(a([4, 3, 2, 1], 3))
+
+    var node = {
+        value: "node_0",
+        node1: {
+            value: 'node1',
+            node1_1: {
+                value: 'node1_1',
+            },
+            node1_2: {
+                value: 'node1_2',
+                node1_2_1: {
+                    value: 'node1_2_1',
+                },
+                node1_2_2: {
+                    value: 'node1_2_2',
+                }
+            }
+        },
+        node2: {
+            value: 'node2',
+            node2_1: {
+                value: 'node2_1',
+            },
+            node2_2: {
+                value: 'node2_2',
+            }
+        },
+        node3: {
+            value: 'node3',
+            node3_1: {
+                value: 'node3_1',
+            },
+            node3_2: {
+                value: 'node3_2',
+            }
+        },
+    }
+    var leaf = [];
+    //求最大深度
+    function maxDepth(node, i) {
+        var i = i || 0;
+        if (node.constructor == Object) {
+            for (let key in node) {
+                if (key == 'value') {
+                    leaf.push({
+                        [node[key]]: i + 1
+                    })
+                } else {
+                    if (typeof node[key] == 'object') {
+                        maxDepth(node[key], i + 1);
+                    }
+                }
+            }
+        }
+    }
+
+    maxDepth(node);
+    console.log(leaf);
 </script>
 
 </html>
