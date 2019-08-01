@@ -1,0 +1,1750 @@
+<script>
+	css3:禁用鼠标事件.disabled { pointer-events: none; }
+	css透明：filter:alpha(opacity:50);
+			 opacity:0.5;
+			 -moz-opacity:0.5;
+	
+	&&(与)，||(或)
+	Object.prototype.toString.call(instance);//可以判断类型
+	Object.prototype.valueOf();//返回一个对象的“值”，默认情况下返回对象本身
+	Array.prototype.slice.call(arguments,0);//可以将类数组变为数组、
+	Array.prototype.forEach.call(string , function () {})//遍历类似数组的对象，比如字符串
+	Array.prototype.join.call('hello' , '-')//‘h-e-l-l-o’ //将字符串组成一个加入的‘-’的字符串返回
+	Array.prototype.concat.call({ a: 1 }, { b: 2 })//可以将对象并和为数组
+	Number.prototype.toString()//表示将一个数字转化成某个进制的字符串。
+	Number.prototype.toFixed()//将一个数转为指定位数的小数，返回这个小数对应的字符串
+	Number.prototype.toExponential()//将一个数转为科学计数法形式。
+	Number.prototype.toPrecision()//将一个数转为指定位数的有效数字。
+	Math.max.apply(Math , values)//找最大值
+	
+	排序：
+		1.冒泡排序 
+		//交换的函数
+		function swap(myArray , p1 , p2) {
+			var temp = myArray[p1];
+			myArray[p1] = myArray[p2];
+			myArray[p2] = temp; 
+		}
+
+		function bubbleSort(myArray) {
+			var len = myArray.length,
+				i,
+				j,
+				stop;
+			for(i=0 ; i<len ; i++) {
+				for(j=0,stop=len-1-i;j<stop;j++){
+					if(myArray[j] > myArray[j+1]) {
+						swap(myArray,j,j+1);
+					}
+				}
+			}
+			return myArray;
+		}
+
+		var array = [1,10,4,6,3,9,7];
+		console.log(bubbleSort(array));
+
+		2.选择排序
+		function selectionSort(myArray) {
+			var len = myArray.length,
+				i,
+				j,
+				min;
+			for(i=0;i<len;i++) {
+				min=i;//将当前位置设为最小
+				// 检查数组其余部分是否更小
+				for(j=i+1;j<len;j++) {
+					if(myArray[min] > myArray[j] ) {
+						min = j;
+					}
+				}
+				// 如果当前位置不是最小值，将其换为最小值
+				if(i !=min) {
+					swap(myArray,i,min);
+				}
+			}
+			return myArray;
+		}
+
+		var array = [1,10,4,6,3,9,7];
+		console.log(selectionSort(array));
+
+		3.插入排序
+		function insertionSort(myArray) {
+		    var len   = myArray.length,     // 数组的长度
+		        value,                      // 当前比较的值
+		        i,                          // 未排序部分的当前位置
+		        j;                          // 已排序部分的当前位置
+		    for (i=0; i < len; i++) {
+		        // 储存当前位置的值
+		        value = myArray[i];
+		        /*
+		         * 当已排序部分的当前元素大于value，
+		         * 就将当前元素向后移一位，再将前一位与value比较
+		         */
+		        for (j=i-1; j > -1 && myArray[j] > value; j--) {
+		            myArray[j+1] = myArray[j];
+		        }
+		        myArray[j+1] = value;
+		    }
+		    return myArray;
+		}
+
+		var array = [1,10,4,6,3,9,7];
+		console.log(insertionSort(array));
+
+		4.快速排序
+		//互换值的函数
+		function swap(myArray, firstIndex, secondIndex){
+		    var temp = myArray[firstIndex];
+		    myArray[firstIndex] = myArray[secondIndex];
+		    myArray[secondIndex] = temp;
+		}
+
+		function partition(myArray, left, right) {
+		    var pivot   = myArray[Math.floor((right + left) / 2)],
+		        i       = left,
+		        j       = right;
+		    while (i <= j) {
+		        while (myArray[i] < pivot) {
+		            i++;
+		        }
+		        while (myArray[j] > pivot) {
+		            j--;
+		        }
+		        if (i <= j) {
+		            swap(myArray, i, j);
+		            i++;
+		            j--;
+		        }
+		    }
+		    return i;
+		}
+
+		function quickSort(myArray, left, right) {
+			if (myArray.length < 2) return myArray;
+			left = (typeof left !== "number" ? 0 : left);
+			right = (typeof right !== "number" ? myArray.length - 1 : right);
+			var index  = partition(myArray, left, right);
+			 if (left < index - 1) {
+		            quickSort(myArray, left, index - 1);
+		     }
+			 if (index < right) {
+		            quickSort(myArray, index, right);
+		      }
+			 return myArray;
+		}
+
+		var array = [1,10,4,6,3,9,7];
+		console.log(quickSort(array));
+
+	原型理解：
+		1.实例中的__proto__只指向原型对象，不指向构造函数
+		2.实例共享的方法和属性在构造函数的原型对象中定义。
+		3.Object.getOwnPropertyNames()//获取实例的可枚举属性
+		4.实例.hasOwnProperty('属性')//实例是否有一个自己自定义的属性，返回true或false
+		5.组合继承
+		function SuperType(name) {
+			this.name = name;
+			this.colors = ['red' , 'blue' , 'green'];
+		}
+
+		SuperType.prototype.sayName = function () {
+			alert(this.name);
+		}
+
+		function SubType (name , age) {
+			//继承SuperType的构造函数的属性，原型对象中的方法也是继承了
+			SuperType.call(this , name);//第二次调用SuperType
+			this.age = age;
+		}
+
+		SubType.prototype = new SuperType();//第一次调用SuperType
+		SubType.prototype.constructor =  SubType;
+		SubType.prototype.sayName = function () {
+			alert(this.name);
+		};
+		6.寄生组合式继承：通过借用构造函数来继承属性，通过原型链来继承方法
+		function SuperType(name) {
+			this.name = name;
+			this.colors = ['red' , 'blue' , 'green'];
+		}
+
+		SuperType.prototype.sayName = function () {
+			alert(this.name);
+		}
+
+		function SubType (name , age) {
+			//继承SuperType的构造函数的属性，原型对象中的方法也是继承了
+			SuperType.call(this , name);
+			this.age = age;
+		}
+
+		function inheritPrototype (SubType , SuperType) {
+			var prototype = Object(SuperType.prototype);//建立对象 这里和Object.create()其实是一样的
+			prototype.constructor = subType;//增强对象
+			SubType.prototype = prototype;//指定对象
+		}
+
+		inheritPrototype(SubType , SuperType)
+		
+		SubType.prototype.sayName = function () {
+			alert(this.name);
+		};
+
+
+	表单提交怎样获取到返回值：
+		<form target="target">
+			......
+		</form>
+		<iframe name="target"></iframe>
+
+		document.getElementById("target").onload = function(){
+			var ifr = $(window.frames['target'].document.body);//获取到body的DOM树，根据iframe的name值来判断
+			var data = JSON.parse(ifr.text());
+			var flag = data.status;
+			if(flag === 0){
+				if(confirm('是否需要跳转至个人中心')){
+					window.location.href = 'personalCenter.html';
+				}
+			}
+			if(flag === 1){
+				alert("创建失败!");
+			}
+		};
+
+	js获取到高度：
+
+		 function getInfo()
+        {
+            var s = "";
+            s += " 网页可见区域宽："+ document.body.clientWidth+" ";
+            s += " 网页可见区域高："+ document.body.clientHeight+" ";
+            s += " 网页可见区域宽："+ element.offsetTop + " (页面顶部距离)";
+            s += " 网页可见区域宽："+ element.offsetLeft + " ";
+            s += " 网页可见区域宽："+ document.body.offsetWidth + " (包括边线和滚动条的宽)"+" ";
+            s += " 网页可见区域高："+ document.body.offsetHeight + " (包括边线的宽)"+" ";
+            s += " 网页正文全文宽："+ document.body.scrollWidth+" ";
+            s += " 网页正文全文高："+ document.body.scrollHeight+" ";
+            s += " 网页被卷去的高(ff)："+ document.body.scrollTop+" ";
+            s += " 网页被卷去的高(ie)："+ document.documentElement.scrollTop+" ";  
+	    document.documentElement.scrollTop || document.body.scrollTop;  
+            s += " 网页被卷去的左："+ document.body.scrollLeft+" ";
+            s += " 网页正文部分上："+ window.screenTop+" ";
+            s += " 网页正文部分左："+ window.screenLeft+" ";      
+            s += " 屏幕分辨率的高："+ window.screen.height+" ";
+            s += " 屏幕分辨率的宽："+ window.screen.width+" ";
+            s += " 屏幕可用工作区高度："+ window.screen.availHeight+" ";
+            s += " 屏幕可用工作区宽度："+ window.screen.availWidth+" ";
+            s += " 你的屏幕设置是 "+ window.screen.colorDepth +" 位彩色"+" ";
+            s += " 你的屏幕设置 "+ window.screen.deviceXDPI +" 像素/英寸"+" ";
+            s += " window的页面可视部分实际高度(ff) "+window.innerHeight+" ";    
+            alert (s);
+        };
+	
+	字符串方法：
+		length属性，chartAt(),charCodeAt().concat(),substring(),substr(),slice(),indexOf(),lastIndexOf(),trim(),toLowerCase(),toUpperCase(),
+		slice和substring方法第一个参数为start位置，第二个参数为结束位置（不包括）
+		substr方法第一个参数为start位置，第二个参数为截取数量
+		搜索和替换：match：用于确定原字符串是否匹配某个子字符串，返回匹配的子字符串数组。
+					search：等同于match，返回位置。	
+					replace：用于替换匹配的字符串。返回一个新的字符串。 
+					split：将字符串按照给定规则分割，返回一个由分割出来的各部分组成的新数组。
+
+		string转Dom：function strToDom(str) {
+						var deal = document.createElement('div');
+						deal.innerHTML = str;
+						return deal.childNodes;
+					}	
+
+	数组方法 ：isArray(),valueOf(),push(),pop(),shift(),unshift(),join(),concat(),reverse(),slice(),splice(),sort(),
+		遍历数组：map有返回值、forEach无返回值、filter返回结果为true的成员组成一个新数组返回、every、some、reduce、reduceRight、indexOf和lastIndexOf
+		sort()用于数组排顺序
+		slice()方法第一个参数为start位置，第二个参数为结束位置（不包括）
+		splice()方法第一个参数开始位置，第二个参数为删除数量，第三个为添加的元素。
+		map():返回一个新的Array，每个元素为调用func的结果
+		filter():返回一个符合func条件的元素数组
+		some():返回一个boolean，判断是否有元素是否符合func条件
+		every():返回一个boolean，判断每个元素是否符合func条件
+		forEach():没有返回值，只是针对每个元素调用func
+		reduce(function(previousValue,currentValue,index,array){
+			return xxx  //需要执行的函数结果，
+			previousValue---------上一次的值-
+			currentValue---------当前值
+			index------当前值的索引
+			array-------数组
+		}[,initialValue])；
+	Object方法：
+				实例方法：
+				var A = {a : 'a'}
+				A.hasOwnProperty('a') //方法会返回一个布尔值，指示对象自身属性中是否具有指定的属性
+				Baz.prototype.isPrototypeOf(baz) //用于测试一个对象是否存在于另一个对象的原型链上
+				A.valueOf()返回当前对象对应的值
+				A.toString()返回当前对象对应的字符串形式,用来判断一个值的类型
+				A.toLocaleString()返回当前对象对应的本地字符串形式
+				A.propertyIsEnumerable('a')判断某个属性是否可枚举
+
+				Object构造函数方法：
+				var A = {a : 'a'}
+				Object.create({a : 'a'}); // 创建对象;第一个参数是这个对象的原型
+				Object.keys(A); // 读取自身可枚举的属性--遍历对象的属性，返回数组
+				Object.getOwnPropertyNames(A); // 读取自身可枚举、不可枚举的属性名--遍历对象的属性
+				Object.getOwnPropertySymbols(); // 读取自身属性--遍历对象的属性
+				Object.is(A , A); // 比较是否相等（===行为一致）；+0不等于-0；NaN不等于自身
+				Object.assign(target ,source); // 对象合并（浅拷贝）---源对象的任何变化，都会反映到目标对象上面。
+				Object.defineProperty(obj , key , {set(){} , get(newvalue){} , enumerable , configurable}); //为对象一次定义多个属性
+				Object.getOwnPropertyDescriptor(obj,property);// 获取该属性的描述对象
+				Object.getPrototypeOf(A);// 查询对象的原型 和__proto__一样
+				Object.setPrototypeOf(A); //修改原型对象 和__proto__一样
+
+				Object.values();// 读取键值，返回数组，按照属性（not键值）的大小飘絮
+				Object.entries();// 读取属性和键值，返回数组
+				Object.isExtensible(); // 判断对象是否可扩展
+				Object.preventExtensions(obj);// 设置原对象不可配置或者禁止扩展;
+				Object.seal();// 设置原对象不可配置或者禁止扩展;
+				Object.isSealed(); // 检测对象是否封闭
+				Object.freeze(); // 将对象冻结；对象不可扩展， 不可配置，所有数据为只读
+				Object.isFrozen(); // 检测对象是否冻结
+				Object.isExtensible();
+				Object.name(); // 返回对象、函数名
+
+
+	Math 方法：	Math.abs()：绝对值
+				Math.ceil()：向上取整
+				Math.floor()：向下取整
+				Math.max()：最大值
+				Math.min()：最小值
+				Math.pow()：指数运算
+				Math.sqrt()：平方根
+				Math.log()：自然对数
+				Math.exp()：e的指数
+				Math.round()：四舍五入
+				Math.random()：随机数(0~1之间的)
+			三角函数：
+				Math.sin()：返回参数的正弦
+				Math.cos()：返回参数的余弦
+				Math.tan()：返回参数的正切
+				Math.asin()：返回参数的反正弦（弧度值）
+				Math.acos()：返回参数的反余弦（弧度值）
+				Math.atan()：返回参数的反正切（弧度值）
+	Date 方法：
+				new Date();当前时间 Date.prototype.toLocaleDateString()返回当地日期的字符串,
+					Date.prototype.toLocalTimeString()返回当地的时间的字符串
+				getTime()：返回距离1970年1月1日00:00:00的毫秒数，等同于valueOf方法。
+				getDate()：返回实例对象对应每个月的几号（从1开始）。
+				getDay()：返回星期几，星期日为0，星期一为1，以此类推。
+				getYear()：返回距离1900的年数。
+				getFullYear()：返回四位的年份。
+				getMonth()：返回月份（0表示1月，11表示12月）。
+				getHours()：返回小时（0-23）。
+				getMilliseconds()：返回毫秒（0-999）。
+				getMinutes()：返回分钟（0-59）。
+				getSeconds()：返回秒（0-59）。
+				getTimezoneOffset()：返回当前时间与UTC的时区差异，以分钟表示，返回结果考虑到了夏令时因素。
+			返回精确时间：
+				var start = new Date();
+				doSomething();
+				var end = new Date();
+				var elapsed = end.getTime() - start.getTime();
+	RegExp 方法：
+			新建正则：var regex = /xyz/g;var regex = new RegExp('xyz' , 'g');
+			正则对象的方法：将字符串作为参数，比如regex.test(string)。//返回true或者false
+			字符串对象的方法：将正则对象作为参数，比如string.match(regex)。
+			方法：test(),exec(只对指定的字符串进行一次匹配，获取字符串中第一个与正则表达式想匹配的内容并返回),
+			整数匹配：/^(\d)*$/
+			(?:.....):表示一个非捕获型分组
+			后缀的?:表示这个分组是可选的
+			^:表示此字符串开始
+			|:表示或
+			+:表示可以匹配多次
+			{0,3}:表示会被匹配0次或者1-3次
+			\d:表示一个数字字符
+			\s:匹配任何空白字符
+			\w:匹配任何字类字符，包括下划线。与“[A-Za-z0-9_]”等效。
+			*:表示会被匹配0次或多次
+			[^#?]:表示匹配除了#和?之外的字符
+			.:表示匹配除行结束符以外的所有字符
+			$:表示结束
+
+	Json 方法 :
+			JSON.stringify方法用于将一个值转为字符串.该字符串符合JSON格式，并且可以被JSON.parse方法还原。
+			JSON.parse方法用于将JSON字符串转化成对象。
+
+	DOM方法：
+			1.Node节点
+				Node节点的属性
+					nodeName，nodeType;
+					ownerDocument，nextSibling，previousSibling，parentNode，parentElement
+					textContent 返回当前节点和它的所有后代节点的文本内容与innerText有区别 ，nodeValue
+					childNodes 返回一个NodeList集合包含元素，Text,comment节点，包括空格，换行符（不能用数组的遍历）
+				**	firstChild 返回当前节点的第一个子节点，如果p元素与span元素之间有空白字符，这导致firstChild返回的是文本节点
+					lastChild  ...
+					baseURI 返回一个当前页面的URL，
+				Node节点的方法
+					appendChild()，hasChildNodes()
+					cloneNode(ture同时克隆子节点)，insertBefore() ul.insertBefore('li',ul.firstChild)，removeChild()，
+					replaceChild(第一个参数是用来替换的新节点，第二个参数将要被替换走的子节点)
+					contains(参数节点是否为当前节点的后代节)，
+					compareDocumentPosition(返回一个7个比特位的二进制值，表示参数节点与当前节点的关系	。)，
+					isEqualNode(返回一个布尔值，用于检查两个节点是否相等。所谓相等的节点，指的是两个节点的类型相同、属性相同、子节点相同。)
+					normalize(清理当前节点内部的所有Text节点。它会去除空的文本节点，并且将毗邻的文本节点合并成一个。)
+				NodeList接口，HTMLCollection接口
+					NodeList接口
+						ES6新增的for…of循环，也可以正确遍历NodeList接口对象。
+						var list = document.querySelectorAll( 'input[type=checkbox]' );
+						for (var item of list) {
+						  item.checked = true;
+						}
+					HTMLCollection接口(高版本浏览器兼容，低版本不兼容)
+						属性：children(由当前节点的所有Element子节点组成)
+						firstElementChild(返回当前节点的第一个Element子节点)
+						lastElementChild(返回当前节点的最后一个Element子节点)
+						childElementCount(返回当前节点的所有Element子节点的数目)
+					dataset属性 (用于操作HTML标签元素的data-*属性)
+						<div id="myDiv" data-id="myId"></div>/
+
+						要读取data-id属性，可以从当前节点的dataset.id属性读取。
+						var id = document.getElementById("myDiv").dataset.id;
+						
+						要设置data-id属性，可以直接对dataset.id赋值。如果该属性不存在，将会被新建。
+						document.getElementById('myDiv').dataset.id = 'hello';
+						
+						删除一个data-*属性，可以直接使用delete命令。
+						delete document.getElementById("myDiv").dataset.id;
+					focus(用于将当前页面的焦点，转移到指定元素上)
+						document.getElementById('my-span').focus();
+			2.document节点
+				document属性：
+					doctype,documentElement 根节点,
+						URL,domain 文档域名,
+						location 返回url,
+						readyState 返回当前文档的状态,
+						forms 返回页面中所有表单,
+						images 返回页面所有图片元素（即img标签）,
+						links 属性返回当前文档所有的链接元素（即a标签，或者说具有href属性的元素）
+				document对象的方法：
+					querySelector()，getElementById()，querySelectorAll()，getElementsByTagName()，getElementsByClassName()，
+					getElementsByName()，elementFromPoint()，createElement()，createTextNode()，createAttribute()，createDocumentFragment()，addEventListener()，removeEventListener()，dispatchEvent()
+			3.Element对象(元素节点)
+				1.属性
+					attributes 返回一个类数组的对象，成员是当前元素节点的所有属性节点，获取后可以通过name和value值获取到值,
+					id 返回指定元素的id标识。该属性可读写,tagName 返回元素的大写的标签名，与nodeName属性的值相等
+					innerHTML 返回该元素包含的HTML代码。该属性可读写，常用来设置某个节点的内容。
+					outerHTML 返回一个字符串，内容为指定元素的所有HTML代码，包括它自身和包含的所有子元素。
+					children 返回一个类似数组的动态对象（实时反映变化），包括当前元素节点的所有子元素
+					childElementCount 返回当前元素节点包含的子元素节点的个数。
+					firstElementChild 返回第一个子元素，如果没有，则返回null 
+					lastElementChild 返回最后一个子元素，如果没有，则返回null。
+					className 返回读取和设置当前元素的class属性
+					classList 返回一个类似数组的对象，当前元素节点的每个类名就是这个对象的一个成员(ie10)
+						add()：增加一个class。
+						remove()：移除一个class。
+						contains()：检查当前元素是否包含某个class。
+						toggle()：将某个class移入或移出当前元素。
+						item()：返回指定索引位置的class。
+						toString()：将class的列表转为字符串。
+						比较添加或者删除类时className和classList
+							// 添加class
+							document.getElementById('foo').className += 'bold';
+							document.getElementById('foo').classList.add('bold');
+
+							// 删除class
+							document.getElementById('foo').classList.remove('bold');
+							document.getElementById('foo').className =
+							document.getElementById('foo').className.replace(/^bold$/, '');
+				2.方法
+					hasAttribute(返回一个布尔值，表示当前元素节点是否包含指定的HTML属性)
+					getAttribute(返回当前元素节点的指定属性。如果指定属性不存在，则返回null)
+					removeAttribute(用于从当前元素节点移除属性)
+					setAttribute(用于为当前元素节点新增属性)
+					querySelector()，
+					querySelectorAll()，
+					getElementsByClassName()，
+					getElementsByTagName()
+					addEventListener()，
+					removeEventListener()，
+					dispatchEvent()
+			4.text节点
+				1.属性
+					data等同于nodeValue属性，用来设置或读取Text节点的内容
+					length 返回当前Text节点的文本长度
+					nextElementSibling 返回紧跟在当前Text节点后面的那个同级Element节点
+					previousElementSibling 返回当前Text节点前面最近的那个Element节点
+				2.方法
+					splitText() 将Text节点一分为二，变成两个毗邻的Text节点
+						分割后，该方法返回分割位置后方的字符串，而原Text节点变成只包含分割位置前方的字符串。
+						// html代码为 <p id="p">foobar</p>
+						var p = document.getElementById('p');
+						var textnode = p.firstChild;
+
+						var newText = textnode.splitText(3);
+						newText // "bar"
+						textnode // "foo"
+					normalize() 可以将毗邻的两个Text节点合并//是splitText的逆方法
+					
+
+
+
+	对于new操作符的理解：
+	  1、创建一个空对象，并且 this 变量引用该对象，同时还继承了该函数的原型。
+	  2、属性和方法被加入到 this 引用的对象中。
+	  3、新创建的对象由 this 所引用，并且最后隐式的返回 this 。
+		var obj = new Base();
+		相当于运行以下代码
+		var obj = {};
+		obj.__proto__ = Base.prototype;
+		Base.call(obj);//将Base的this绑定到obj上，这样就能够运用Base的是属性和方法了。
+		对于ES5中添加了 Object.create()，Object.create()是添加在原型链上的
+		if(typeof Object.create !== "function"){
+		    Object.create = function(o){
+		        function F(){};
+		        F.prototype = o;
+		        return new F();
+		    }
+		}
+
+	关于闭包：
+		IE9之前，JScript对象和COM对象使用不同的垃圾收集例程，那么闭包会引起一些问题。
+	    例如在闭包中保存一个HTML元素，那么该元素将无法销毁。
+		function handler(){
+		    var ele = document.getElementById("ele");
+		    ele.onclick = function(){
+		        alert(ele.id);
+		    }
+		}
+	    创建一个闭包，而后闭包有创建一个循环引用。
+		最好的方式应该是这样(将HTML元素赋值，这样可以消除隐患)
+		function handler(){
+		    var ele = document.getElementById("ele");
+		    var id = ele.id;
+		    ele.onclick = function(){
+		        alert(id);
+		    }
+		    ele = null;
+		}
+	    闭包会引用包含函数的整个活动对象，即是闭包不直接引用ele，活动对象依然会对其保存一个引用，那么设置null就可以断开保存的引用，释放内存。
+
+    模仿块级作用域：
+	    使用自执行的匿名函数来模拟块级作用域
+	    (function(){
+	        // 这里为块级作用域
+	    })();
+	    该方法经常在全局作用域中被用在函数外部，从而限制向全局作用域中添加过多的变量和函数影响全局作用域。也可以减少如闭包这样的对内存的占用，由于匿名函数没有变量指向，执行完毕就可以立即销毁其作用域链。
+
+    立即调用的函数：
+	    可能省略圆括号其效果是一样的，但是会带来可读性上的降低。
+	    // 好的写法
+	    var value = (function(){
+	        
+	        //函数体
+
+	        return {
+	            message: "Hi !"
+	        }
+	    }());
+
+	浏览器的组成：
+		1.渲染引擎(火狐为Gecko,Safari为Webkit,Chrome为Blink)
+		  渲染引擎处理网页4个阶段
+		  ( 解析代码：HTML代码解析为DOM，CSS代码解析为CSSOM（CSS Object Model）css规则树
+			对象合成：将DOM和CSSOM合成一棵渲染树（render tree）
+			布局：计算出渲染树的布局（layout）
+			绘制：将渲染树绘制到屏幕
+			)
+		  以上四步并非严格按顺序执行，往往第一步还没完成，第二步和第三步就已经开始了。所以，会看到这种情况：网页的HTML代码还没下载完，但浏览器已经显示出内容了。
+		 2.script标签的工作原理
+			1.浏览器一边下载HTML网页，一边开始解析
+			2.解析过程中，发现script标签.暂停解析，
+			3.网页渲染的控制权转交给JavaScript引擎
+			4.如果script标签引用了外部脚本，就下载该脚本，否则就直接执行
+			5.执行完毕，控制权交还渲染引擎，恢复往下解析HTML网页
+		3.defer(属性的作用是，告诉浏览器，等到DOM加载完成后，再执行指定脚本。内置而不是连接外部脚本的script标签，以及动态生成的script标签，defer属性不起作用。)
+			1.浏览器开始解析HTML网页
+			2.解析过程中，发现带有defer属性的script标签
+			3.浏览器继续往下解析HTML网页，同时并行下载script标签中的外部脚本
+			4.浏览器完成解析HTML网页，此时再执行下载的脚本
+		4.async(属性的作用是，使用另一个进程下载脚本，下载时不会阻塞渲染。)
+			1.浏览器开始解析HTML网页
+			2.解析过程中，发现带有async属性的script标签
+			3.浏览器继续往下解析HTML网页，同时并行下载script标签中的外部脚本
+			4.脚本下载完成，浏览器暂停解析HTML网页，开始执行下载的脚本
+			5.脚本执行完毕，浏览器恢复解析HTML网页
+
+		一般来说，如果脚本之间没有依赖关系，就使用async属性，如果脚本之间有依赖关系，就使用defer属性。如果同时使用async和defer属性，后者不起作用，浏览器行为由async属性决定。
+
+		defer 和 async 的共同点是都是可以并行加载JS文件，不会阻塞页面的加载，不同点是 defer的加载完成之后，JS会等待整个页面全部加载完成了再执行，而async是加载完成之后，会马上执行JS，所以假如对JS的执行有严格顺序的话，那么建议用 defer加载。
+		
+		5.重流与重绘
+			重流和重绘并不一定一起发生，重流必然导致重绘，重绘不一定需要重流。比如改变元素颜色，只会导致重绘，而不会导致重流；改变元素的布局，则会导致重绘和重流。
+			使用window.requestAnimationFrame()，因为它可以把代码推迟到下一次重流时执行，而不是立即要求页面重流
+			// 重绘代价高
+			function doubleHeight(element) {
+			  var currentHeight = element.clientHeight;
+			  element.style.height = (currentHeight * 2) + 'px';
+			}
+			all_my_elements.forEach(doubleHeight);
+			// 重绘代价低
+			function doubleHeight(element) {
+			  var currentHeight = element.clientHeight;
+
+			  window.requestAnimationFrame(function () {
+			    element.style.height = (currentHeight * 2) + 'px';
+			  });
+			}
+			all_my_elements.forEach(doubleHeight);
+		6.脚本动态嵌入
+			(function() {
+			  var scripts = document.getElementsByTagName('script')[0];
+			  function load(url) {
+			    var script = document.createElement('script');
+			    script.async = true;
+			    script.src = url;
+			    scripts.parentNode.insertBefore(script, scripts);
+			  }
+			  load('//apis.google.com/js/plusone.js');
+			  load('//platform.twitter.com/widgets.js');
+			  load('//s.thirdpartywidget.com/widget.js');
+			}());
+			上面代码中，async属性设为true，是因为加载的脚本没有互相依赖关系。而且，这样就不会造成堵塞。
+			此外，动态嵌入还有一个地方需要注意。动态嵌入必须等待CSS文件加载完成后，才会去下载外部脚本文件。静态加载就不存在这个问题，script标签指定的外部脚本文件，都是与CSS文件同时并发下载的。
+
+	定时器：
+		1.setTimeout(function(a,b){
+		  console.log(a+b);
+		},1000,1,1);
+		上面代码中，setTimeout共有4个参数。最后那两个参数，将在1000毫秒之后回调函数执行时，作为回调函数的参数。//IE10上支持4个参数	
+		2.debounce（防抖动）方法，用来返回一个新函数。
+			
+			function debounce(fn, delay){
+			  var timer = null; // 声明计时器
+			  return function(){
+			    var context = this;
+			    var args = arguments;
+			    clearTimeout(timer);
+			    timer = setTimeout(function(){
+			      fn.apply(context, args);
+			    }, delay);
+			  };
+			}
+			// 用法示例
+			var todoChanges = _.debounce(batchLog, 1000);
+			Object.observe(models.todo, todoChanges);
+			setTimeout的作用是将代码推迟到指定时间执行，如果指定时间为0，即setTimeout(f, 0)，那么会立刻执行吗？
+			答案是不会。因为上一段说过，必须要等到当前脚本的同步任务和“任务队列”中已有的事件，全部处理完以后，才会执行
+			setTimeout指定的任务。也就是说，setTimeout的真正作用是
+			，在“消息队列”的现有消息的后面再添加一个消息，规定在指定时间执行某段代码。setTimeout添加的事件，会在下一次Event 
+			Loop执行。
+
+		应用：
+			setTimeout(f,0)有几个非常重要的用途。它的一大应用是，可以调整事件的发生顺序。比如，网页开发中，某个事件先发生在子元素，然后冒泡到父元素，即子元素的事件回调函数，会早于父元素的事件回调函数触发。如果，我们先让父元素的事件回调函数先发生，就要用到setTimeout(f, 0)。
+			var div = document.getElementsByTagName('div')[0];
+			// 写法一
+			for(var i=0xA00000;i<0xFFFFFF;i++) {
+			  div.style.backgroundColor = '#'+i.toString(16);
+			}
+			// 写法二
+			var timer;
+			var i=0x100000;
+			function func() {
+			  timer = setTimeout(func, 0);
+			  div.style.backgroundColor = '#'+i.toString(16);
+			  if (i++ == 0xFFFFFF) clearInterval(timer);
+			}
+			timer = setTimeout(func, 0);
+
+	window对象
+		1.窗口大小和位置
+			window.screenX，window.screenY(返回浏览器窗口左上角相对于当前屏幕左上角(0, 0)的水平距离和垂直距离，单位为像素。)
+			window.innerHeight，window.innerWidth(返回网页在当前窗口中可见部分的高度和宽度，即“视口”viewport)
+			window.outerHeight，window.outerWidth(返回浏览器窗口的高度和宽度，包括浏览器菜单和边框，单位为像素。)
+			window.pageXOffset属性，window.pageYOffset属性(返回页面的水平滚动距离,返回页面垂直滚动距离)
+		2.window对象的属性
+			window.closed(返回一个布尔值，表示指定窗口是否关闭，通常用来检查通过脚本新建的窗口。)
+			window.opener(打开当前窗口的父窗口。如果当前窗口没有父窗口则返回null)
+			window.name(属性用于设置当前浏览器窗口的名字,该属性只能保存字符串，且当浏览器窗口关闭后，所保存的值就会消失因此局限性比较大，但是与iframe窗口通信时，非常有用。)。
+			window.location(返回一个location对象，用于获取窗口当前的URL信息)
+		3.navigator对象
+			navigator.userAgent属性,返回浏览器的User-Agent字符串，用于表示浏览器的种类
+		4.window.screen对象
+			screen.height和screen.width了解设备的分辨率。
+			screen.availHeight和screen.availWidth属性返回屏幕可用的高度和宽度，单位为像素。它们的值为屏幕的实际大小减去操作系统某些功能占据的空间，比如系统的任务栏。
+		5.window对象的方法
+			window.moveTo()，window.moveBy()方法用于移动浏览器窗口到指定位置(相对位置)。它接受两个参数，分别是窗口左上角距离屏幕左上角的水平距离和垂直距离，单位为像素。
+			window.open(), window.close()
+		6.URL的编码/解码方法
+			decodeURI()
+			decodeURIComponent()
+			encodeURI()
+			encodeURIComponent()
+		7.window对象的事件
+			window.onerror(出错信息,出错脚本的网址,行号,列号,错误对象){};
+		8.弹出框
+			alert()、prompt()、confirm()
+
+	history对象
+		1.history.length属性：表示浏览器的浏览历史
+		2.方法：back()：移动到上一个访问页面，等同于浏览器的后退键。
+				forward()：移动到下一个访问页面，等同于浏览器的前进键。
+				go()：接受一个整数作为参数，移动到该整数指定的页面，比如go(1)相当于forward()，go(-1)相当于back(),go(0)
+				相当于刷新当前页面。
+				HTML5为history对象添加了两个新方法，history.pushState() 和 history.replaceState()
+				,用来在浏览历史中添加和修改记录。所有主流浏览器都支持该方法（包括IE10）。
+
+	Cookie
+		1.概述：
+			Cookie是服务器保存在浏览器的一小段文本信息，每个Cookie的大小一般不能超过4KB。浏览器每次向服务器发出请求，就会自动附上这段信息。
+			window.navigator.cookieEnabled属性返回一个布尔值，表示浏览器是否打开Cookie功能。
+			// 读取当前网页的所有cookie
+			var allCookies = document.cookie;
+			由于document.cookie返回的是分号分隔的所有Cookie，所以必须手动还原，才能取出每一个Cookie的值。
+				var cookies = document.cookie.split(';');
+				for (var i = 0; i < cookies.length; i++) {
+				  // cookies[i] name=value形式的单个Cookie
+				}
+			document.cookie属性读写行为的差异（一次可以读出全部Cookie，但是只能写入一个Cookie且必须以键值对的形式写入例如（document.cookie = 'test1=hello';）），与服务器与浏览器之间的
+			Cookie通信格式有关。浏览器向服务器发送Cookie的时候，是一行将所有Cookie全部发送。
+		2.属性
+			通过设置document.domain来共享cookie
+
+	Web Storage：浏览器端数据储存机制
+		1.概述：
+			sessionStorage和localStorage。
+				sessionStorage保存的数据用于浏览器的一次会话，当会话结束（通常是该窗口关闭），数据被清空
+				localStorage保存的数据长期存在，下一次访问该网站的时候，网页可以直接读取以前保存的数据
+				通过检测 window对象来来判断浏览器是否包含这个属性
+		2.操作方法：
+			sessionStorage和localStorage保存的数据，都以“键值对”的形式存在。也就是说，每一项数据都有一个键名和对应的值。所有的数据都是以文本格式保存。
+			存入数据：
+				sessionStorage.setItem("key","value");
+				localStorage.setItem("key","value");
+			读取数据：
+				var valueSession = sessionStorage.getItem("key");
+				var valueLocal = localStorage.getItem("key");
+			清除数据：
+				sessionStorage.removeItem('key');
+				localStorage.removeItem('key');
+			遍历操作：
+				for(var i = 0; i < localStorage.length; i++){
+    				console.log(localStorage.key(i));//key方法从0开始获得键值 
+				}
+		3.storage事件
+			window.addEventListener("storage",onStorageChange);
+			function onStorageChange(event) {
+     			console.log(event.key);//event有key,oldValue,newValue,url属性
+			}
+
+	同源政策：
+		1.概述：
+			协议，域名，端口相同则满足
+		2.cookie
+			举例来说，A网页是http://w1.example.com/a.html，
+					  B网页是http://w2.example.com/b.html，
+					  那么只要设置相同的document.domain，两个网页就可以共享Cookie。
+
+			document.domain = 'example.com';
+			现在，A网页通过脚本设置一个 Cookie。
+			document.cookie = "test1=hello";
+			B网页就可以读到这个 Cookie。
+			var allCookie = document.cookie;
+			注意：这种方法只适用于 Cookie 和 iframe 窗口
+		3.跨域
+			JSONP(只支持get请求).WebSocket,CORS(任何请求);
+			跨浏览器的CORS：
+			function createCORSRequest (method,url) {
+			    var xhr = XMLHttpRequest();
+			    if ("withCredentails" in xhr) {
+			        xhr.open(method,url,true);
+			    } else if (typeof XDomainRequest != "undefined") {
+			        xhr = new XDomainRequest();
+			        xhr.open(method,url);
+			    } else {
+			        xhr = null;
+			    }
+			    return xhr;    
+			}
+
+			var request = createCORSRequest("get","http://www.somewhere-else.com");
+			if(request) {
+			    request.onload = function (){
+			    //对request.responseText进行处理
+			    }
+				request.send();
+			}
+
+	Ajax:
+		1.状态码
+			200, OK，访问正常
+			204, OK, 无返回内容，可用于计算访问量。
+			301, Moved Permanently，永久移动
+			304, Not Modified，未修改
+			307, Temporary Redirect，暂时重定向
+			401, Unauthorized，未授权
+			403, Forbidden，禁止访问
+			404, Not Found，未发现指定网址
+			500, Internal Server Error，服务器发生错误
+			一般来说200~300和304 才算是正常
+		2.超时设定
+			xhr.ontimeout = function () {
+	    		console.error("The request for " + url + " timed out.");
+	  		};
+	  		xhr.open("GET", url, true);
+	  		xhr.timeout = timeout;
+	  		xhr.send(null);
+			timeout属性等于一个整数，表示多少毫秒后，如果请求仍然没有得到结果，就会自动终止
+		3.FormData
+			FormData也可以将现有表单构造生成
+			var formElement = document.querySelector("form");
+			var request = new XMLHttpRequest();
+			request.open("POST", "submitform.php");
+			request.send(new FormData(formElement));
+			为表单添加数据
+			formData.append('username', '张三');
+
+**			FormData对象也能用来模拟File控件，进行文件上传。
+			function uploadFiles(url, files) {
+			  var formData = new FormData();
+			  for (var i = 0, file; file = files[i]; ++i) {
+			    formData.append(file.name, file); // 可加入第三个参数，表示文件名
+			  }
+			  var xhr = new XMLHttpRequest();
+			  xhr.open('POST', url, true);
+			  xhr.onload = function(e) { ... };
+			  xhr.send(formData);  // multipart/form-data
+			}
+			document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+			  uploadFiles('/server', this.files);
+			}, false);
+**		4.文件上传
+			HTML网页的<form>元素能够以四种格式，向服务器发送数据。
+			使用POST方法，将enctype属性设为application/x-www-form-urlencoded，
+			<form action="register.php" method="post" onsubmit="AJAXSubmit(this); return false;">
+			</form>
+			使用POST方法，将enctype属性设为text/plain。
+			<form action="register.php" method="post" enctype="text/plain" onsubmit="AJAXSubmit(this); return false;">
+			</form>
+			使用POST方法，将enctype属性设为multipart/form-data。
+			<form action="register.php" method="post" enctype="multipart/form-data" onsubmit="AJAXSubmit(this); return false;">
+			</form>/
+			使用GET方法，enctype属性将被忽略。
+
+			通常，我们使用file控件实现文件上传。
+			<form id="file-form" action="handler.php" method="POST">
+			  <input type="file" id="file-select" name="photos[]" multiple/>
+			  <button type="submit" id="upload-button">上传</button>
+			</form>
+    		上面HTML代码中，file控件的multiple属性,指定可以一次选择多个文件；如果没有这个属性，则一次只能选择一个文件。
+			file对象的files属性，返回一个FileList对象，包含了用户选中的文件。
+
+			var fileSelect = document.getElementById('file-select');
+			var files = fileSelect.files;
+			然后，新建一个FormData对象的实例，用来模拟发送到服务器的表单数据，把选中的文件添加到这个对象上面。
+			var formData = new FormData();
+			for (var i = 0; i < files.length; i++) {
+			  var file = files[i];
+			  if (!file.type.match('image.*')) {
+			    continue;
+			  }
+			  formData.append('photos[]', file, file.name);
+			}
+
+			最后，使用Ajax方法向服务器上传文件。
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', 'handler.php', true);
+			xhr.onload = function () {
+			  if (xhr.status !== 200) {
+			    alert('An error occurred!');
+			  }
+			};
+			xhr.send(formData);
+			目前，各大浏览器（包括IE 10）都支持Ajax上传文件。
+		5.进度条
+			上传文件时，XMLHTTPRequest对象的upload属性有一个progress，会不断返回上传的进度。
+			
+			假定网页上有一个progress元素。
+			<progress min="0" max="100" value="0">0% complete</progress>/
+
+			文件上传时，对upload属性指定progress事件回调函数，即可获得上传的进度。
+			function upload(blobOrFile) {
+			  var xhr = new XMLHttpRequest();
+			  xhr.open('POST', '/server', true);
+			  xhr.onload = function(e) { ... };
+			  // Listen to the upload progress.
+			  var progressBar = document.querySelector('progress');
+			  xhr.upload.onprogress = function(e) {
+			    if (e.lengthComputable) {
+			      progressBar.value = (e.loaded / e.total) * 100;
+			      progressBar.textContent = progressBar.value; // Fallback for unsupported browsers.
+			    }
+			  };
+			  xhr.send(blobOrFile);
+			}
+
+			upload(new Blob(['hello world'], {type: 'text/plain'}));
+		6.新技术fetch技术,采用promise机制
+
+	CORS通信
+		1.条件：关键在于服务器实现了CORS接口，就可以跨源通信
+				默认请求是不包含Cookie信息(以及HTTP认证信息等)
+		2.通信种类：
+			简单请求：HEAD,GET,POST
+					Accept
+					Accept-Language
+					Content-Language
+					Last-Event-ID
+					Content-Type：只限于三个值application/x-www-form-urlencoded、multipart/form-data、text/plain
+			非简单请求：
+				在正式通信之前，增加一次HTTP查询请求，称为“预检”请求。“预检”请求用的请求方法是OPTION，表示这个请求是用来询问的。
+				头信息里面，关键字段是Origin，表示请求来自哪个源
+
+	IndexedDB：浏览器端数据库
+		1.方法
+			indexedDB.open
+			var openRequest = indexedDB.open("test",1);//打开名为“text”的数据库，版本为1，如果不存在则创建一个
+			var openRequest = indexedDB.open("test",1);
+			var db;
+			openRequest.onupgradeneeded = function(e) {
+			    console.log("Upgrading...");
+			}
+			openRequest.onsuccess = function(e) {
+			    console.log("Success!");
+			    db = e.target.result;//event对象的target.result指向打开的indexedDB数据库
+			}
+			openRequest.onerror = function(e) {
+			    console.log("Error");
+			    console.dir(e);
+			}
+			··················
+
+	Web Notifications API
+		1.概述：浏览器的通知接口，用于在用户的桌面（而不是网页上）显示通知信息，桌面电脑和手机都适用，比如通知用户收到了一封
+		Email。具体的实现形式由浏览器自行部署，对于手机来说，一般显示在顶部的通知栏。
+	Performance API
+		1.概述：用于精确度量、控制、增强浏览器的性能表现。这个
+		API为测量网站性能，提供以前没有办法做到的精度。它的精度可以达到1毫秒的千分之一（1秒的百万分之一）支持浏览器Chrome 20+、
+		Firefox 15+、IE 10+、Opera 15+。
+
+	移动设备API
+		1.Viewport(将网页的显示区域放大，移动设备屏幕不变，就不会有滚动条)
+		  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+		  //缩放到当前设备的屏幕宽度（device-width），初始缩放比例（initial-scale）为1倍，禁止用户缩放（user-scalable）
+		 2.Geolocation(用于获取用户的地理位置)IE9上都支持
+		 	getCurrentPosition(getCurrentPosition方法，用来获取用户的地理位置。使用它需要得到用户的授权，浏览器会跳出一个对话框，询问用户是否许可当前页面获取他的地理位置)
+		 	例：navigator.geolocation.getCurrentPosition(geoSuccess,geoError);
+		 		function geoSuccess(event) {
+				   console.log(event.coords.latitude + ', ' + event.coords.longitude);
+				}
+				coords.latitude：纬度
+				coords.longitude：经度
+				coords.accuracy：精度
+				coords.altitude：海拔
+				coords.altitudeAccuracy：海拔精度（单位：米）
+				coords.heading：以360度表示的方向
+				coords.speed：每秒的速度（单位：米）
+				function geoError(event) { 
+				   console.log("Error code " + event.code + ". " + event.message);
+				}
+			watchPosition方法可以用来监听用户位置的持续改变
+			，使用方法与getCurrentPosition方法一样。
+			var watchID = navigator.geolocation.watchPosition(geoSuccess,geoError, option);
+			navigator.geolocation.clearWatch(watchID)
+		3.Orientation API(用于检测手机的摆放方向（竖放或横放）。)
+			window.addEventListener("deviceorientation", callback);
+			function callback(event){
+				console.log(event.alpha);
+				console.log(event.beta);
+				console.log(event.gamma);
+			}
+			alpha：表示围绕z轴的旋转，从0到360度。当设备水平摆放时，顶部指向地球的北极，alpha此时为0。
+			beta：表示围绕x轴的旋转，从-180度到180度。当设备水平摆放时，beta此时为0。
+			gramma：表示围绕y轴的选择，从-90到90度。当设备水平摆放时，gramma此时为0。
+
+	HTML网页元素
+		1.image
+		alt属性,src属性:alt属性返回image元素的HTML标签的alt属性值，src属性返回image元素的HTML标签的src属性值。
+		complete属性:complete属性返回一个布尔值，true表示当前图像属于浏览器支持的图形类型,并且加载完成，解码过程没有出错，否则就返回false。
+		2.audio元素，video元素
+			audio元素和video元素加载音频和视频
+
+	// Canvas API
+	// 	1.概述
+	// 		<canvas id="myCanvas" width="400" height="200">
+	// 		  您的浏览器不支持canvas！
+	// 		</canvas>/
+	// 		用canvas元素对应的context对象，用getContext来获取
+	// 		var canvas = document.getElementById('myCanvas');
+	// 		if (canvas.getContext) {
+	// 		  var ctx = canvas.getContext('2d');
+	// 		  //生成2d图案，如果参数为webgl，则生成3d图像
+	// 		}
+	// 	2.绘图方法
+
+	// SVG图像
+	// 	1.插入SVG文件
+	// 		SVG插入网页的方法有多种，可以用在img、object、embed、
+	// 		iframe等标签，以及CSS的background-image属性。
+
+	表单
+		1.表单元素input,select,textarea,password等可以通过value获取到他们的值
+			1.1 select select是下拉列表元素。
+			1.2 type=checkbox是多选框控件，每个选择框只有选中和不选中两种状态。
+			    有checked属性返回一个布尔值表示是否被选中
+			 1.3 type=radio
+			 	radio是单选框控件，同一组选择框同时只能选中一个，选中元素的checked属性为true
+		2.表单验证
+			2.1 HTML5表单验证(原生验证)
+				1.检查用户是否在input输入框之中填入值。
+				if (inputElem.value === inputElem.defaultValue) {
+				  // 用户没有填入内容
+				}
+				2.<input type="date" >//必须输入日期，否则报错
+				3.type属性
+					button	定义可点击按钮（多数情况下，用于通过 JavaScript 启动脚本）。
+					checkbox	定义复选框。
+					file	定义输入字段和 "浏览"按钮，供文件上传。
+					hidden	定义隐藏的输入字段。
+					image	定义图像形式的提交按钮。
+					password	定义密码字段。该字段中的字符被掩码。
+					radio	定义单选按钮。
+					reset	定义重置按钮。重置按钮会清除表单中的所有数据。
+					submit	定义提交按钮。提交按钮会把表单数据发送到服务器。
+					text	定义单行的输入字段，用户可在其中输入文本。默认宽度为 20 个字符。
+
+	文件和二进制数据的操作
+		1.Blob对象(Blob（Binary Large Object）对象代表了一段二进制数据，提供了一系列操作接口。其他操作二进制数据的API（比如File对象），都是建立在Blob对象基础上的，继承了它的属性和方法。)
+		  1.1Blob对象的slice方法，将二进制数据按照字节分块，返回一个新的Blob对象。
+		  	下面是一个使用XMLHttpRequest对象，将大文件分割上传的例子。
+			(function upload(blobOrFile) {
+			  var xhr = new XMLHttpRequest();
+			  xhr.open('POST', '/server', true);
+			  xhr.onload = function(e) { ... };
+			  xhr.send(blobOrFile);
+			}
+			document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+			  var blob = this.files[0];
+
+			  const BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunk sizes.
+			  const SIZE = blob.size;
+
+			  var start = 0;
+			  var end = BYTES_PER_CHUNK;
+
+			  while(start < SIZE) {
+			    upload(blob.slice(start, end));
+
+			    start = end;
+			    end = start + BYTES_PER_CHUNK;
+			  }
+			}, false);
+
+			})();
+		2.FileList对象(FileList对象针对表单的file控件。当用户通过file控件选取文件后，这个控件的files属性值就是FileList对象。它在结构上类似于数组，包含用户选取的多个文件。)
+			<input type="file" id="input" onchange="console.log(this.files.length)" multiple />
+			var selected_file = document.getElementById('input').files[0];//读取文件
+		3.File API(即FileList对象的成员，包含文件的一些元信息包含：name,size,type,lastModefied,lastModifieDate)
+		4.FileReader API(用于读取文件，即把文件读入内存。它的参数是File对象或者是Blob对象，采用异步方式读取文件)
+			方法：readAsBinaryString(Blob|File)：返回二进制字符串，该字符串每个字节包含一个0到255之间的整数。
+				  readAsText(Blob|File, opt_encoding)：返回文本字符串。默认情况下，文本编码格式是UTF-8
+				  可以通过可选的格式参数，指定其他编码格式的文本。
+				  readAsDataURL(Blob|File)：返回一个基于Base64编码的data-uri对象。(可以将返回值设为图像的src属性)
+				  readAsArrayBuffer(Blob|File)：返回一个ArrayBuffer对象。(在文件操作时（比如将JPEG图像转为PNG图像），这个方法非常方便。)
+				  abort用于终止文件上传
+			例如：
+				上传图片
+				document.querySelector('input[type=file]').onchange = function(e){
+			     	readFile(e.target.files[0]);
+				};
+				function readFile (file) {
+					var reader = new FileReader();
+					if(file.type.indexOf('image') > -1) {
+						reader.onload = function (e) {
+							loadimg.src = e.target.result;//事件对象的target.result就是文件的内容
+						};
+					}else {
+						alert('请上传图片');
+					}
+					reader.readAsDataURL(file);
+				}
+					//读取进度
+				var reader = new FileReader();
+				reader.onprogress = updateProgress;
+				function updateProgress(evt) {
+				  if (evt.lengthComputable) {
+				    var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+				    var progress = document.querySelector('.percent');
+				    if (percentLoaded < 100) {
+				      progress.style.width = percentLoaded + '%';
+				      progress.textContent = percentLoaded + '%';
+				    }else {
+				      progress.style.width = '100%';
+				      progress.textContent = '100%';
+				    }
+				  }
+				}
+
+	Web Worker
+		1.概述：javascrirpt是单线程模式，也就是说所有的任务排成一个队列。一次只能做一件事，
+		Web Worker的目的，就是为JavaScript创造多线程环境，允许主线程将一些任务分配给子线程。在主线程运行的同时，子线程在后台运行，两者互不干扰。等到子线程完成计算任务，再把结果返回给主线程。
+
+	Page Visibility API
+		用途：visibilitychange事件用于，如果你的页面上有嵌入视频正在播放，当用户切换到其它标签页时，你的标签页上的视频应自动暂停播放，当用户切换回来时继续接着播放。再比如，如果你的页面有自动刷新动作，当用户切换到其它标签页时，你就应该停止刷新，而当用户切换回来时继续之前的动作
+
+	requestAnimationFrame /(在使用动画的时候使用)
+		1.概述
+			目的：是为了让各种网页动画效果（DOM动画、Canvas动画、SVG动画、WebGL动画）能够有一个统一的刷新机制，从而节省系统资源，提高系统性能，改善视觉效果。代码中使用这个API，就是告诉浏览器希望执行一个动画，让浏览器在下一个动画帧安排一次网页重绘。
+			优势在于：充分利用显示器的刷新机制，比较节省系统资源。显示器有固定的刷新频率（60Hz或75Hz）。
+				也就是说，每秒最多只能重绘60次或75次，requestAnimationFrame的基本思想就是与这个刷新频率保持同步
+				，利用这个刷新频率进行页面重绘。
+			不过有一点需要注意，requestAnimationFrame是在主线程上完成。这意味着，如果主线程非常繁忙，
+			requestAnimationFrame的动画效果会大打折扣。
+			兼容性：Firefox 23 / IE 10 / Chrome / Safari）
+			使用： window.requestAnimFrame = (function(){
+				      return  window.requestAnimationFrame       || 
+				              window.webkitRequestAnimationFrame || 
+				              window.mozRequestAnimationFrame    || 
+				              window.oRequestAnimationFrame      || 
+				              window.msRequestAnimationFrame     || 
+				              function( callback ){
+				                window.setTimeout(callback, 1000 / 60);
+				              };
+				    })();
+				    使用requestAnimationFrame的时候，只需反复调用它即可
+				    function repeatOften() {
+					  // Do whatever
+					  requestAnimationFrame(repeatOften);//以回调函数作为参数
+					}
+					requestAnimationFrame(repeatOften);
+		2.cancelAnimationFrame方法
+			var globalID;
+			function repeatOften() {
+			  $("<div>").appendTo("body");
+			  globalID = requestAnimationFrame(repeatOften);
+			}
+
+			$("#start").on("click", function() {
+			  globalID = requestAnimationFrame(repeatOften);
+			});
+
+			$("#stop").on("click", function() {
+			  cancelAnimationFrame(globalID);//以requestAnimationFrame返回的一个代表任务ID的整数值。
+			});
+			上面代码持续在body元素下添加div元素，直到用户点击stop按钮为止。
+			
+	Promise对象//异步编程
+		1.javascript的异步执行
+			1.1概述：Promise是JavaScript异步操作解决方案
+			同步：后一个任务等待前一个任务结束，然后再执行，程序的执行顺序与任务的排列顺序是一致的、同步的。这往往用于一些简单的、快速的、不涉及读写的操作。
+			异步：每一个任务分成两段，第一段代码包含对外部数据的请求，第二段代码被写成一个回调函数，包含了对外部数据的处理。第一段代码执行完，不是立刻执行第二段代码，而是将程序的执行权交给第二个任务。等到外部数据返回了，再由系统通知执行第二段代码
+			1.2回调函数
+			如果f1是一个很耗时间的任务，可以考虑把f2写成f1的回调函数
+			例如：function f1(callback){
+					  setTimeout(function () {
+					    // f1的任务代码
+					    callback();
+					  }, 1000);
+				  }
+					f1(f2);//缺点，每次任务只能指定一个回调函数，且各部分很高度耦合
+			1.3事件监听(采用事件驱动模式，任务的执行不取决于代码的顺序，而取决于某个事件是否发生。)
+			addEventListener
+			1.4发布/订阅
+			用的jq插件
+			jQuery.subscribe("done", f2);
+			function f1(){
+				setTimeout(function () {
+					// f1的任务代码
+					jQuery.publish("done");
+				}, 1000);
+			}
+			jQuery.unsubscribe("done", f2);
+		2.异步操作的流程控制
+			2.1并行与串行的结合
+			var items = [ 1, 2, 3, 4, 5, 6 ];
+			var results = [];//运行结果
+			var running = 0;//正在运行的任务数量
+			var limit = 2;//限制同时执行的异步任务数量
+			function async(arg, callback) {
+			  console.log('参数为 ' + arg +' , 1秒后返回结果');
+			  setTimeout(function() { callback(arg * 2); }, 1000);
+			}
+			 function final(value) {
+			  console.log('完成: ', value);
+			}
+			function launcher() {
+			  while(running < limit && items.length > 0) {
+			    var item = items.shift();
+			    async(item, function(result) {
+			      results.push(result);
+			      running--;
+			      if(items.length > 0) {
+			        launcher();
+			      } else if(running == 0) {
+			        final();
+			      }
+			    });
+			    running++;
+			  }
+			}
+
+			launcher();
+			上面代码中，最多只能同时运行两个异步任务。变量running记录当前正在运行的任务数
+			，只要低于门槛值，就再启动一个新的任务，如果等于0，就表示所有任务都执行完了，这时就执行final函数
+		3.Promise对象
+			3.1简介：就是一个javascript对象，其次，它起到代理作用（proxy），充当异步操作与回调函数之间的中介。它使得异步操作具备同步操作的接口，使得程序具备正常的同步运行的流程，回调函数不必再一层层嵌套。每一个异步任务立刻返回一个Promise对象
+			，由于是立刻返回，所以可以采用同步操作的流程,这个Promises对象有一个then方法，允许指定回调函数，在异步任务完成后调用。
+
+			Promise在英语中语义为：”承诺“，它表示如A调用一个长时间任务B的时候，B将返回一个”承诺“给A，A不用关心整个实施的过程
+			，继续做自己的任务；当B实施完成的时候，会通过A，并将执行A之间的预先约定的回调
+
+			异步事件：鼠标点击事件、窗口大小拖拉事件、定时器触发事件、Ajax完成回调事件等
+
+			// 传统写法
+			step1(function (value1) {
+			  step2(value1, function(value2) {
+			    step3(value2, function(value3) {
+			      step4(value3, function(value4) {
+			        // ...
+			      });
+			    });
+			  });
+			});
+
+			// Promises的写法
+			(new Promise(step1))
+			  .then(step2)
+			  .then(step3)
+			  .then(step4);
+			 目的：使用正常的程序流程(同步)，来处理异步操作。它先返回一个Promise对象，后期的操作以同步的方式，寄存在这个对象上面
+			 3.2Promise接口(Promise的用法，简单说就是一句话：使用then方法添加回调函数)
+			 	// 写法一,如果再添加一个回调函数，这个回调函数的参数则是dosomethingelse函数的运行结果
+				doSomething().then(function () {
+				  return doSomethingElse();
+				}).then(finalHandler);
+
+				// 写法二,如果再添加一个回调函数，这个回调函数的参数则是undefined
+				doSomething().then(function () {
+				  doSomethingElse();
+				});
+
+				// 写法三，如果再添加一个回调函数，这个回调函数的参数则是dosomethingelse返回的回调函数的运行结果
+				doSomething().then(doSomethingElse());
+
+				// 写法四，如果再添加一个回调函数，这个回调函数的参数是dosomethingelse的运行结果，而且dosomethingelse函数能够接收到dosomething的返回结果
+				doSomething().then(doSomethingElse);
+		4.Promise的应用
+			4.1加载图片
+				var preloadImage = function (path) {
+				  return new Promise(function (resolve, reject) {
+				    var image = new Image();
+				    image.onload  = resolve;
+				    image.onerror = reject;
+				    image.src = path;
+				  });
+				};
+			4.2 Ajax操作
+				function search(term) {
+				  var url = 'http://example.com/search?q=' + term;
+				  var xhr = new XMLHttpRequest();
+				  var result;
+
+				  var p = new Promise(function (resolve, reject) {//resolve函数是promise状态从“未完成”-	“成功”的时候作为参数传递出去，reject则从“未完成”-“失败”的时候触发
+				    xhr.open('GET', url, true);
+				    xhr.onload = function (e) {
+				      if (this.status === 200) {
+				        result = JSON.parse(this.responseText);
+				        resolve(result);
+				      }
+				    };
+				    xhr.onerror = function (e) {
+				      reject(e);
+				    };
+				    xhr.send();
+				  });
+
+				  return p;
+				}
+
+				search("Hello World").then(console.log, console.error);
+
+	严格模式
+		'use strict';
+		1.显示报错
+		    1.1 字符串的length不可写，只可读
+			1.2 eval.arguments不可作为函数名
+			1.3 对象的只读属性进行赋值，会报错
+			1.4 函数参数不能重名
+			1.5 禁止this关键字指向全局对象，此时this = undefined
+			1.6 禁止使用fn.callee,fn.caller,arguments.callee、arguments.caller
+			1.7 改变函数的参数，不会反应到arguments对象上来。
+			1.8 为了与ES6接轨，严格模式只允许在全局作用域或函数作用域的顶层声明函数。也就是说，不允许在非函数的代码块内声明函数。
+			例如："use strict";
+					if (true) {
+					  function f1() { } // 语法错误
+					}
+
+					for (var i = 0; i < 5; i++) {
+					  function f2() { } // 语法错误
+					}
+
+	jQuery
+		1.jQuery构造函数返回的结果集
+			1.1 length属性
+			1.2 下标选择符
+				$('li')[0] instanceof jQuery // false 不为jq对象
+				$('li')[0] instanceof Element = $('li').get[0] instanceof Element // true 为DOM对象,可以用于jq对象都和js对象互转
+			1.3 is() 方法，返回布尔值
+			1.4 eq() 方法
+			1.5 each(),map()方法，map方法的用法与each方法完全一样，区别在于each方法没有返回值，只是对每一个元素执行某种操作，而map方法返回一个新的jQuery对象。
+			1.6 first(),last(),next(),prev(),parent(),parents(返回所有的上级元素),children(),siblings(),nextAll(),preAll(),closest(),find(),add(为结果集添加元素),addBack(将当前元素加回原始的结果集),end(用于返回原始的结果集),filter(过滤结果集),not(),has(),
+		2.DOM方法
+			2.1 html(),text(),val(),addClass(),removeClass(),toggleClass(有类就删除，无则添加),css(),attr(),prop(如tagName、nodeName、nodeType等),removeProp(),removeAtrr(),data(用于存数据),
+			2.2 添加、复制和移动网页元素的方法
+			    append(),appendTo(),prepend(),perpendTo(),after(),insertAfter(),before(),insertBefore(),wrap(将参数中的元素变成当前元素的父元素),wrapAll(为结果集的所有元素，添加一个共同的父元素),unwrap(移除当前元素的父元素),wraplnner(当前元素的所有子元素，添加一个父元素),clone(),remove(),detach(移除并返回一个元素，但是不取消该元素上所有事件的绑定。),replaceWith(替换并返回当前元素，取消当前元素的所有事件的绑定)
+			2.3 动画
+			  	简便方法：show：显示当前元素。
+						hide：隐藏当前元素。
+						toggle：显示或隐藏当前元素。
+						fadeIn：将当前元素的不透明度（opacity）逐步提升到100%。
+						fadeOut：将当前元素的不透明度逐步降为0%。
+						fadeToggle：以逐渐透明或逐渐不透明的方式，折叠显示当前元素。
+						slideDown：以从上向下滑入的方式显示当前元素。
+						slideUp：以从下向上滑出的方式隐藏当前元素。
+						slideToggle：以垂直滑入或滑出的方式，折叠显示当前元素。
+				复杂方法：animate(对象，时间，回调)，stop(),delay(接受一个时间参数，表示暂停多少毫秒后继续执行),
+			2.4 事件
+				click,keydown,keypress,keyup,mouseover,mouseout,mouseenter,mouseleave,scroll,focus,blur,resize,hover
+				事件处理方法：on(),trigger(触发回调函数，而不会引发浏览器的默认行为),off(移除事件的回调函数),
+				event对象：
+					属性：type：事件类型，比如click。
+						which：触发该事件的鼠标按钮或键盘的键。
+						target：事件发生的初始对象。
+						data：传入事件对象的数据。
+						pageX：事件发生时，鼠标位置的水平坐标（相对于页面左上角）。
+						pageY：事件发生时，鼠标位置的垂直坐标（相对于页面左上角）。
+					方法：preventDefault：取消浏览器默认行为。
+						  stopPropagation：阻止事件向上层元素传播。
+				一次性事件：one(这对提交表单很有用)
+		3.工具方法(对于jquery对象的直接方法)
+			3.1 常用工具方法
+				$.trim(用于移除字符串头部和尾部多余的空格),
+				$.contains(判断第二参数是否是第一参数的下级元素),
+				$.each(),$.map(),($.each方法用于遍历数组和对象，然后返回原始对象。它接受两个参数，分别是数据集合和回调函数,
+								  $.map方法也是用来遍历数组和对象，但是会返回一个新对象)
+				$.inArray(该方法返回一个值在数组中的位置（从0开始）。如果该值不在数组中，则返回-1)
+				$.extend(用于将多个对象合并进第一个对象),
+				$.proxy(主要用于为绑定函数的上下文(也就是this对象)和参数，返回一个新函数),
+				$.data(document.body, "foo", 52),$.removeData()
+				$.parseHTML(字符串解析为DOM对象),$.parseJSON(将JSON字符串解析为JavaScript对象),$.parseXML(字符串解析为XML对象),
+				$.makeArray(将一个类似数组的对象，转化为真正的数组),
+				$.merge(将一个数组（第二个参数）合并到另一个数组（第一个参数）之中)
+				$.now(返回距离现在时间对应的毫秒数),
+		4.判断数据类型的方法
+			jQuery.isArray()：是否为数组。
+			jQuery.isEmptyObject()：是否为空对象（不含可枚举的属性）。
+			jQuery.isFunction()：是否为函数。
+			jQuery.isNumeric()：是否为数值（整数或浮点数）。
+			jQuery.isPlainObject()：是否为使用“{}”或“new Object”生成的对象，而不是浏览器原生提供的对象。
+			jQuery.isWindow()：是否为window对象。
+			jQuery.isXMLDoc()：判断一个DOM节点是否处于XML文档之中
+			$.type():返回数据的变量类型
+		5.Ajax操作
+			5.1 $.ajax({
+				  async: true,
+				  url: '/url/to/json',
+				  type: 'GET',
+				  data : { id : 123 },
+				  dataType: 'json',
+				  timeout: 30000,
+				  success: successCallback,	
+				  error: errorCallback,
+				  complete: completeCallback,
+				  statusCode: {
+				        404: handler404,
+				        500: handler500
+				  }
+				})
+				$.fn.load():是定义在jq实例上的方法，用于获取本地的HTML文件，将其放入当前元素
+				$('#newContent').load('/foo.html',function () {} );
+			5.2 Ajax事件
+				.ajaxComplete()：ajax请求完成。
+				.ajaxError()：ajax请求出错。
+				.ajaxSend()：ajax请求发出之前。
+				.ajaxStart()：第一个ajax请求开始发出，即没有还未完成ajax请求。
+				.ajaxStop()：所有ajax请求完成之后。
+				.ajaxSuccess()：ajax请求成功之后。
+			5.3 返回值
+				ajax方法返回的是一个deferred对象，可以用then方法为该对象指定回调函数
+				$.ajax({
+				  url: '/data/people.json',
+				  dataType: 'json'
+				}).then(function (response){
+				  console.log(response.people);
+				})
+			5.4 文件上传
+				<input type="file" id="test-input">;
+
+				var file = $('#test-input')[0].files[0];
+				var formData = new FormData();
+				formData.append('file', file);
+				$.ajax('myserver/uploads', {
+				  method: 'POST',
+				  contentType: false,
+				  processData: false,
+				  data: formData
+				});
+		6.jQuery.Deferred对象;;
+			6.1; 概述：deferred对象是jQuery对Promise接口的实现。jQuery的所有Ajax操作函数，默认返回的就是一个deferred对象;
+			6.2; notify(); 和; progress();
+				progress()用来指定一个回调函数;，当调用notify()方法时;，该回调函数将执行。它的用意是提供一个接口，使得在非同步操作执行过程中，可以执行某些操作，比如定期返回进度条的进度。
+				例如：
+					var userProgress = $.Deferred();
+				    var $profileFields = $("input");
+				    var totalFields = $profileFields.length;
+				        
+				    userProgress.progress(function (filledFields) {
+				        var pctComplete = (filledFields/totalFields)*100;
+				        $("#progress").html(pctComplete.toFixed(0));
+				    }); 
+
+				    userProgress.done(function () {
+				        $("#thanks").html("Thanks for completing your profile!").show();
+				    });
+				    
+				    $("input").on("change", function () {
+				        var filledFields = $profileFields.filter("[value!='']").length;
+				        userProgress.notify(filledFields);
+				        if (filledFields == totalFields) {
+				            userProgress.resolve();
+				        }
+				    });
+			6.3; 使用实例;
+				6.3.1;; wait方法：用deferred对象写一个wait方法，表示等待多少毫秒后再执行;
+				$.wait = function(time) {
+					return $.Deferred(function(dfd) {
+						setTimeout(dfd.resolve, time);
+					});
+				};
+
+				6.3.2;改写setTimeout;：在上面的wait方法的基础上，还可以改写setTimeout方法，让其返回一个deferred对象;
+				function doSomethingLater(fn, time) {
+				  var dfd = $.Deferred();
+				  setTimeout(function() {
+				    dfd.resolve(fn());
+				  }, time || 0);
+				  return dfd.promise();
+				}
+
+				var promise = doSomethingLater(function (){
+				  console.log( '已经延迟执行' );
+				}, 100);
+
+				6.3.3;自定义操作使用deferred接口;：我们可以利用deferred接口，使得任意操作都可以用done()和fail();指定回调函数;。
+				Twitter = {
+				  search:function(query) {
+				    var dfd = $.Deferred();
+				    $.ajax({
+				     url:"http://search.twitter.com/search.json",
+				     data:{q:query},
+				     dataType:'jsonp',
+				     success:dfd.resolve
+				    });
+				    return dfd.promise();
+				  }
+				};
+				Twitter.search('javaScript').then(function(data) {
+				  alert(data.results[0].text);
+				});
+
+				6.3.4;; deferred对象的另一个优势是可以附加多个回调函数。下面的例子使用了上面所改写的setTimeout函数。
+				function doSomething(arg) {
+				  var dfd = $.Deferred();
+				  setTimeout(function() {
+				    dfd.reject("Sorry, something went wrong.");
+				  });
+				  return dfd;
+				}
+
+				doSomething("uh oh").done(function() {
+				  console.log("Won't happen, we're erroring here!");
+				}).fail(function(message) {
+				  console.log(message); 
+				});
+		7.如何做到jQuery-free(理解jQuery的原理);;
+			7.1; 选取DOM元素：var $ = document.querySelectorAll.bind(document);
+			7.2; DOM操作：jQuery的DOM操作，js都能实现;
+			7.3; 事件监听：Element.prototype.on = Element.prototype.addEventListener;
+				在NodeList对象上也部署这个方法;
+				NodeList.prototype.on = function (event, fn) {
+					[]['forEach'].call(this, function (el) {
+						el.on(event, fn);
+				    });
+				    return this;
+				};
+			7.4; 事件触发; trigger()方法;：
+				Element.prototype.trigger = function (type, data) {
+				    var event = document.createEvent('HTMLEvents');
+				    event.initEvent(type, true, true);
+				    event.data = data || {};
+				    event.eventName = type;
+				    event.target = this;
+				    this.dispatchEvent(event);
+				    return this;
+				};
+				NodeList.prototype.trigger = function (event) 
+					[]['forEach'].call(this, function (el) {
+						el['trigger'](event);
+					});
+				    return this;
+	}
+			7.5; $(document).ready(function(){}); 
+				DOM加载的时候会触发DOMContentLoaded事件，等同于jQuery的$(document).ready方法,
+				但是一般将脚本放在页面底部，这样的话，在加载脚本的时候，DOM就已经加载好了，
+				所以其实是比window.onload(页面内包括图片的所有元素加载完毕后才能执行)要先加载;;
+			7.6; 数据存储;
+				$("body").data("foo", 52);
+				HTML; 5有一个dataset对象;，也有类似的功能（IE; 10不支持;），不过只能保存字符串。
+				element.dataset.user = JSON.stringify(user);
+				element.dataset.score = score;
+		8.form;;
+			当提交表单时，会发生; submit; 事件。
+			该事件只适用于表单元素。
+			submit(); 方法触发; onsubmit; 事件，或规定当发生; submit; 事件时运行的函数。
+			$("form").submit(function(e){
+			    e.preventDefault();
+			    alert("Submit prevented");
+			 });
+			原生：document.querySelector("form").onsubmit = function () {...};	
+			//注意 是检测发生的事件，并不是主动发生
+			document.getElementsByTagName('form')[0].submit.click();//此处的submit是一个type=submit的input,即选择form->submit->click
+		
+
+	常用的表单控件
+			单行文本框：
+
+			<input type="text" value="text">
+
+			密码文本框：
+
+			<input type="password" >
+
+			命令按钮：
+
+			<input type="button" value="按钮">
+
+			提交命令按钮：
+
+			<input type="submit">
+
+			重置命令按钮：
+
+			<input type="reset">
+
+			文件上传输入：
+
+			<input type="file">
+
+			文本区：
+			<textarea cols="10" rows="5"></textarea>
+
+			隐藏元素：
+
+			<input type="hidden">
+
+			列表框：
+
+			<select size="2">
+
+			<option selected="selected">选择１</option>
+
+			<option>选择２</option>
+
+			</select>
+
+			下拉列表框：（单选列表框）
+
+			<select >
+
+			<option>选择１</option>
+
+			<option selected="selected">选择２</option>
+
+			</select>
+
+			复选（列表框）
+
+			<select size="2" multiple="multiple">
+
+			<option>选择１</option>
+
+			<option selected="selected">选择２</option>
+
+			</select>
+
+			单选按钮：
+
+			<input type="radio" checked="checked">选择１
+
+			<input type="radio" >选择２
+
+			<input type="radio" >选择３
+
+			复选框：
+			添加readonly="readonly" disabled的话,只读属性
+			<input type="checkbox" checked="checked">选择１
+
+			<input type="checkbox" >选择２
+
+			<input type="checkbox" checked="checked">选择３
+			
+</script>		
+
+附：看高性能JavaScript一书心得：
+
+第一章：
+	1.使用动态<script>下载并执行脚本，尽量减少HTTP请求。
+	2.使用XHR对象下载脚本，但是此时只能进行同域脚本请求，ajax不能跨域。
+	3.使用defer async延迟脚本。
+
+第二章：
+	1.在JavaScript中访问变量的速度是按照执行作用域链顺序依次访问的。局部变量--->全局变量。且访问速度为字面量和局部变量最快，
+	数组和对象成员最慢。
+	2.通常把常用的对象成员、数组元素、跨域变量保存在局部变量中来改变性能的。因为局部变量的访问速度最快。
+	
+第三章：
+	1.要批量修改DOM时，应该尽量减少重排和重绘的次数。
+		方法：改变元素的可见性display，在操作前将其隐藏，操作完后将显示出来。
+			  使用文档片段：var frament = document.createDocumentFragment()。
+			  克隆节点。element.cloneNode();
+	2.事件委托。通过监听事件对象，来辨别事件目标，执行不同的事件。
+
+第四章：
+	1.一般来说浏览器的调用栈大小限制了递归算法在JavaScript中的应用，栈溢出错误会导致其他代码执行中断。
+	2.如果遇到栈溢出的错误，可以将递归改为迭代算法。 
+
+第五章：
+	1.使用正则表达式匹配时最好使用正则表达式+字符串方法替换，从开头和结尾替换。（除尾和头部空白）
+
+
+React技巧：
+	1.使用React.createClass时要创建为大写
+    2.组件类只能包含一个顶层标签，否则也会报错,即return的时候返回一个div(最外层)
+    3.当我们需要向组件类传递参数时，使用this.props对象
+    4.在添加属性时， class 属性需要写成 className ，for 属性需要写成 htmlFor ，这是因为 class 和 for 是 JavaScript 的保留字。
+    5.在组件中 getInitialState 用于定义初始状态，也就是一个对象，这个对象可以通过 this.state 属性读取。当用户点击组件，导致状态变化，
+    this.setState 方法就修改状态值，每次修改以后，自动调用 this.render 方法，再次渲染组件
+    6.state 和 props 主要的区别在于 props 是不可变的，而 state 可以根据与用户交互来改变。这就是为什么有些容器组件需要定义 state 来更新和修改数据。
+    而子组件只能通过 state 来传递数据。
+    7.可以通过 getDefaultProps() 方法在组件中设置 props 默认值
+    8.组件API
+        设置状态：setState
+            setState(object nextState[, function callback])
+        替换状态：replaceState
+            replaceState(object nextState[, function callback])
+        设置属性setProps
+            setProps(object nextProps[, function callback])
+        替换属性replaceProps
+            replaceProps(object nextProps[, function callback])
+        强制更新：forceUpdate
+            forceUpdate([function callback])
+        获取DOM节点：getDOMNode
+            DOMElement getDOMNode(),返回值：DOM元素DOMElement
+        从组件获取真实 DOM 的节点，
+            React.findDOMNode 方法。
+        判断组件挂载状态：isMounted
+            bool isMounted() 返回值：true或false，表示组件是否已挂载到DOM中
+    9.组件的生命周期
+    组件的生命周期可分成三个状态：
+        Mounting：已插入真实 DOM
+        Updating：正在被重新渲染
+        Unmounting：已移出真实 DOM
+    生命周期的方法有：
+        componentWillMount 在渲染前调用,在客户端也在服务端。
+        componentDidMount : 在第一次渲染后调用，只在客户端。之后组件已经生成了对应的DOM结构，可以通过this.getDOMNode()来进行访问。 如果你想和其他JavaScript框架一起使用，可以在这个方法中调用setTimeout, setInterval或者发送AJAX请求等操作(防止异部操作阻塞UI)。
+        componentWillReceiveProps 在组件接收到一个新的prop时被调用。这个方法在初始化render时不会被调用。
+        shouldComponentUpdate 返回一个布尔值。在组件接收到新的props或者state时被调用。在初始化时或者使用forceUpdate时不被调用。
+        可以在你确认不需要更新组件时使用。
+        componentWillUpdate在组件接收到新的props或者state但还没有render时被调用。在初始化时不会被调用。
+        componentDidUpdate 在组件完成更新后立即调用。在初始化时不会被调用。
+        componentWillUnmount在组件从 DOM 中移除的时候立刻被调用。
+    10.React中ajax
+        React 组件的数据可以通过 componentDidMount 方法中的 Ajax 来获取，当从服务端获取数据库可以将数据存储在 state 中，再用 this.setState
+    方法重新渲染 UI。当使用异步加载数据时，在组件卸载前使用 componentWillUnmount 来取消未完成的请求。
+    11.this.props.children
+        表示的是该组件所有的“子”节点,this.props.children 的值有三种可能：如果当前组件没有子节点，它就是undefined;如果有一个子节点，数据类型是
+    object ；如果有多个子节点，数据类型就是 array 。所以，处理 this.props.children 的时候要小心。React 提供一个工具方法 React.Children 来处理
+    this.props.children 。我们可以用 React.Children.map 来遍历子节点，而不用担心this.props.children 的数据类型是 undefined 还是 object
+    12. ref属性，用于获取真实的DOM节点
+
+    13.关于图片问题：要将所有的加载文件放在build目录下，例如：css,img等文件,路径是打包后的js文件相对于img文件
+    <img src='./img/loginBack.jpg' alt=""/>
+    style={{background: 'url(./img/loginBack.jpg)'}}
+
+    14.webpack使用总结
+        <!--对于只有前台的-->
+        1.执行npm start 是打开了一个端口并且监听到了js文件内容的改变（打开一个命令端口）
+        2.执行webpack -w 是将文件打包并且监听并改变文件的改变。
+        3.最好的解决方法开双窗口，即npm start + webpack -w
+
+        <!--对于有前后台的，例如node-->
+        1.执行npm run app 打开监听端口,这里后台会有一个静态的资源文件夹（存放html,css,js,img等），这里相当于访问的地址就是访问的静态资源
+        2.这里就只需要再开一个命令窗口 webpack -w来监听文件改变，就行了。
+
+    15.React执行this.props.data.map(function(){})的时候，应该这样写（需要指定一个key关键）
+    this.props.data.map(function (comment) {
+    return (
+    <Comment key={comment.author} author={comment.author} time={comment.time}>
+        {comment.text}
+    </Comment>
+    );
+    });/
+
+
+    Require.js相关知识：
+    1.关于requirejs加载问题：每个模块所依赖的其他模块都会比本模块先加载。
+    2.requirejs的上下文对象context。在requirejs源码里面有一句 req({})  ,这是初始化上下文context对象，调用的是req方法。
+    3.在requirejs里面有特定代码是用来查找data-main的，然后往全局对象cfg里面添加base路径和main
+    4.getModule方法返回的是当前模块所依赖的模块和当前模块运行结果
+    5.在newContext方法里面定义了大量的加载模块、校检、检查等工作。可以看到这个方法，主要是定义了一个context对象和Module方法,然后执行这个方法后会自动调用对象的makeRequire()方法，这个makeRequire实际上又是调用的是内部定义的localRequire(),loaclRequire()又是处理加载模块，依赖检查的核心。
+    6.所有的加载都会交由req.nextTick 执行。
+
+    简单流程：
+     1.我们在使用requireJS时，都会把所有的js交给requireJS来管理，也就是我们的页面上只引入一个require.js，把data-main指向我们的main.js。
+
+	 2.通过我们在main.js里面定义的require方法或者define方法，requireJS会把这些依赖和回调方法都用一个数据结构保存起来。
+
+	 3.当页面加载时，requireJS会根据这些依赖预先把需要的js通过document.createElement的方法引入到dom中，这样，被引入dom中的script便会运行。
+
+	 4.由于我们依赖的js也是要按照requireJS的规范来写的，所以他们也会有define或者require方法，同样类似第二步这样循环向上查找依赖，同样会把他们村起来。
+
+	 5.当我们的js里需要用到依赖所返回的结果时(通常是一个key value类型的object),requireJS便会把之前那个保存回调方法的数据结构里面的方法拿出来并且运行，然后把结果给需要依赖的方法。
+
+	 另外：
+		1.原来RequireJS加载模块的时候，是检查data-main属性，然后去加载目标js。
+		2 加载到目标模块后，会按照它的依赖关系，进行加载，并且每个模块仅会加载一次。
+		3 加载模块的时候，会绑定一个load事件，当加载完会触发事件，执行该js
+		4 脚本实际上是通过创建了页面的script元素，然后添加到head里面。	
+
+浏览器型号、移动端、安卓、ios检测:
+<script type="text/javascript">
+    var browser={
+        versions:function(){
+            var u = navigator.userAgent, app = navigator.appVersion;
+            return {
+                trident: u.indexOf('Trident') > -1, //IE内核
+                presto: u.indexOf('Presto') > -1, //opera内核
+                webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+                gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1,//火狐内核
+                mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+                ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+                android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+                iPhone: u.indexOf('iPhone') > -1 , //是否为iPhone或者QQHD浏览器
+                iPad: u.indexOf('iPad') > -1, //是否iPad
+                webApp: u.indexOf('Safari') == -1, //是否web应该程序，没有头部与底部
+                weixin: u.indexOf('MicroMessenger') > -1, //是否微信 （2015-01-22新增）
+                qq: u.match(/\sQQ/i) == " qq" //是否QQ
+            };
+        }(),
+        language:(navigator.browserLanguage || navigator.language).toLowerCase()
+    };
+    if(browser.versions.mobile||browser.versions.android||browser.versions.ios){
+        location.href = 'http://a.app.qq.com/o/simple.jsp?pkgname=cn.com.sina.finance';
+    }
+</script>
